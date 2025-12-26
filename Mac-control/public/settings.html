@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - Mac Control</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <span class="logo-icon">🖥️</span>
+                <span class="logo-text">Mac Control</span>
+            </div>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">
+                    <span class="nav-icon">🏠</span>
+                    <span>Home</span>
+                </a>
+                <a href="status.html" class="nav-link">
+                    <span class="nav-icon">📊</span>
+                    <span>Status</span>
+                </a>
+                <a href="settings.html" class="nav-link active">
+                    <span class="nav-icon">⚙️</span>
+                    <span>Settings</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="page-header">
+                <a href="index.html" class="back-button">← Back</a>
+                <h1 class="page-title">⚙️ Settings</h1>
+                <p class="page-subtitle">Configure your Mac Control connection</p>
+            </div>
+
+            <div class="settings-container">
+                <div class="settings-card">
+                    <h3>🔗 Connection Settings</h3>
+                    <div class="form-group">
+                        <label for="apiUrl">API URL (Your Mac's IP)</label>
+                        <input type="text" id="apiUrl" placeholder="http://192.168.1.100:8080">
+                        <small>Example: http://192.168.1.100:8080 (same Wi-Fi network)</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="authToken">Authentication Token</label>
+                        <input type="password" id="authToken" placeholder="Enter your secure token">
+                        <small>This is the token you generated during setup</small>
+                    </div>
+
+                    <button onclick="saveSettings()" class="save-button">💾 Save Settings</button>
+                    <button onclick="testConnection()" class="test-button">🔍 Test Connection</button>
+                </div>
+
+                <div class="settings-card">
+                    <h3>ℹ️ How to Find Your Settings</h3>
+                    <div class="info-list">
+                        <div class="info-item">
+                            <strong>1. Find Your Mac's IP Address</strong>
+                            <p>On your Mac, open Terminal and run:</p>
+                            <code>ifconfig | grep "inet " | grep -v 127.0.0.1</code>
+                            <p>Look for something like: <code>192.168.1.100</code></p>
+                        </div>
+
+                        <div class="info-item">
+                            <strong>2. Use Port 8080 (default)</strong>
+                            <p>Your API URL will be:</p>
+                            <code>http://YOUR-MAC-IP:8080</code>
+                        </div>
+
+                        <div class="info-item">
+                            <strong>3. Get Your Token</strong>
+                            <p>Check your Mac's terminal where the server is running, or check your launchd plist file.</p>
+                        </div>
+
+                        <div class="info-item">
+                            <strong>⚠️ Important</strong>
+                            <p>• Both devices must be on the same Wi-Fi network</p>
+                            <p>• Your Mac must be running the Mac Control server</p>
+                            <p>• Keep your token secure and never share it</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-card">
+                    <h3>🔒 Security Notes</h3>
+                    <ul class="security-list">
+                        <li>Settings are saved in your browser (localStorage)</li>
+                        <li>Your token is never sent to Vercel servers</li>
+                        <li>All communication is direct to your Mac</li>
+                        <li>Use only on trusted networks</li>
+                        <li>Clear settings when using shared devices</li>
+                    </ul>
+                    <button onclick="clearSettings()" class="clear-button">🗑️ Clear All Settings</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>Mac Control Panel • Secure Remote Access</p>
+    </footer>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/settings.js"></script>
+</body>
+</html>

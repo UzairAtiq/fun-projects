@@ -1,10 +1,4 @@
 {
-  "rewrites": [
-    {
-      "source": "/api/:path*",
-      "destination": "http://192.168.1.13:8080/:path*"
-    }
-  ],
   "headers": [
     {
       "source": "/(.*)",
