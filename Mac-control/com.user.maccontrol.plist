@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- Service Label - Must be unique -->
+    <key>Label</key>
+    <string>com.user.maccontrol</string>
+    
+    <!-- Program to run - Full path to Python in virtual environment -->
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Users/uzair/Developer/Projects/Mac-control-py/.venv/bin/python</string>
+        <string>/Users/uzair/Developer/Projects/Mac-control-py/run.py</string>
+    </array>
+    
+    <!-- Environment Variables -->
+    <key>EnvironmentVariables</key>
+    <dict>
+        <!-- IMPORTANT: Change this to a secure random token -->
+        <key>MAC_CONTROL_TOKEN</key>
+        <string>replace-this-token</string>
+        
+        <!-- Optional: Set Flask configuration -->
+        <key>FLASK_HOST</key>
+        <string>0.0.0.0</string>
+        
+        <key>FLASK_PORT</key>
+        <string>8080</string>
+        
+        <key>FLASK_DEBUG</key>
+        <string>false</string>
+        
+        <!-- Set Python path if needed -->
+        <key>PYTHONUNBUFFERED</key>
+        <string>1</string>
+    </dict>
+    
+    <!-- Working Directory -->
+    <key>WorkingDirectory</key>
+    <string>/Users/uzair/Developer/Projects/Mac-control-py</string>
+    
+    <!-- Run at Load (start when user logs in) -->
+    <key>RunAtLoad</key>
+    <true/>
+    
+    <!-- Keep Alive - Restart if it crashes -->
+    <key>KeepAlive</key>
+    <dict>
+        <!-- Restart if crashed -->
+        <key>SuccessfulExit</key>
+        <false/>
+        
+        <!-- Only run when network is available -->
+        <key>NetworkState</key>
+        <true/>
+    </dict>
+    
+    <!-- Logging -->
+    <key>StandardOutPath</key>
+    <string>/Users/uzair/Developer/Projects/Mac-control-py/logs/stdout.log</string>
+    
+    <key>StandardErrorPath</key>
+    <string>/Users/uzair/Developer/Projects/Mac-control-py/logs/stderr.log</string>
+    
+    <!-- Process Control -->
+    <key>ProcessType</key>
+    <string>Interactive</string>
+    
+    <!-- Throttle restarts to prevent rapid restart loops -->
+    <key>ThrottleInterval</key>
+    <integer>30</integer>
+    
+    <!-- Nice level (priority) - 0 is normal -->
+    <key>Nice</key>
+    <integer>0</integer>
+</dict>
+</plist>
