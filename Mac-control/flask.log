@@ -1,0 +1,35 @@
+Starting Flask server on http://0.0.0.0:8080
+Using token: my-secure-token
+Server will accept connections from:
+  - Local: http://127.0.0.1:8080
+  - Network: http://192.168.1.4:8080
+
+Test URLs:
+  Status: http://192.168.1.4:8080/status?token=my-secure-token
+  Lock: curl -X POST 'http://192.168.1.4:8080/lock?token=my-secure-token'
+
+ * Serving Flask app 'mac-control'
+ * Debug mode: off
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8080
+ * Running on http://192.168.1.4:8080
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug:192.168.1.4 - - [12/Oct/2025 12:47:50] "POST /lock?token=my-secure-token HTTP/1.1" 200 -
+OpenCV: not authorized to capture video (status 0), requesting...
+OpenCV: can not spin main run loop from other thread, set OPENCV_AVFOUNDATION_SKIP_AUTH=1 to disable authorization request and perform it in your application.
+OpenCV: camera failed to properly initialize!
+[ WARN:0@19.186] global cap.cpp:480 open VIDEOIO(AVFOUNDATION): backend is generally available but can't be used to capture by index
+INFO:werkzeug:192.168.1.4 - - [12/Oct/2025 12:47:58] "[35m[1mGET /camera?token=my-secure-token HTTP/1.1[0m" 500 -
+ERROR:werkzeug:192.168.1.4 - - [12/Oct/2025 12:49:02] code 400, message Bad request version ('É¤¶xO=\x82\x7f,D\x06\x00*úú\x13\x02\x13\x03\x13\x01À,À+Ì©À0À/Ì¨À')
+INFO:werkzeug:192.168.1.4 - - [12/Oct/2025 12:49:02] "[31m[1m\x16\x03\x01\x05å\x01\x00\x05á\x03\x03;ÁG¶Þ®Oû\x17ê&\x94\x97 q\x1c5]xv\x11C\x96}\x0fHÄº¤LÂu Ö\x1d\x0dê¯Ôèeøê\x82m\x97\x10±¨dG\x94s\x0dÉ¤¶xO=\x82\x7f,D\x06\x00*úú\x13\x02\x13\x03\x13\x01À,À+Ì©À0À/Ì¨À[0m" 400 -
+ERROR:werkzeug:192.168.1.4 - - [12/Oct/2025 12:49:02] code 400, message Bad HTTP/0.9 request type ('\x16\x03\x01\x05ç\x01\x00\x05ã\x03\x03MÑY4\x13Ó&_/\x868\x9d¬ßþ{\x8ac>\x03\x80Vð\x9fàl')
+INFO:werkzeug:192.168.1.4 - - [12/Oct/2025 12:49:02] "[31m[1m\x16\x03\x01\x05ç\x01\x00\x05ã\x03\x03MÑY4\x13Ó&_/\x868\x9d¬ßþ{\x8ac>\x03\x80Vð\x9fàl\x1e¹É1\x18\x12 [0m" 400 -
+INFO:werkzeug:192.168.1.8 - - [12/Oct/2025 12:49:18] "POST /lock?token=my-secure-token HTTP/1.1" 200 -
+ERROR:werkzeug:192.168.1.4 - - [12/Oct/2025 12:50:50] code 400, message Bad request version ('¶¨9\x99Ü£Î[\x8cBxÙ\x9b¬ª5õ\x01LyO$3\x93\x91\x00*zz\x13\x02\x13\x03\x13\x01À,À+Ì©À0À/Ì¨À')
+INFO:werkzeug:192.168.1.4 - - [12/Oct/2025 12:50:50] "[31m[1m\x16\x03\x01\x05å\x01\x00\x05á\x03\x03Ç\x07ù48×H­\x11\x1eFqV\x02>8\x07Ü¾8ÕùãåeN&ï×ú]L ßóuqpè\x1e¶¨9\x99Ü£Î[\x8cBxÙ\x9b¬ª5õ\x01LyO$3\x93\x91\x00*zz\x13\x02\x13\x03\x13\x01À,À+Ì©À0À/Ì¨À[0m" 400 -
+ERROR:werkzeug:192.168.1.4 - - [12/Oct/2025 12:50:50] code 400, message Bad HTTP/0.9 request type ('\x16\x03\x01\x05ç\x01\x00\x05ã\x03\x03\x07õ\x10|&¼\x96J?\x93$Ì$=\'a"d+\x84ËdÐÙÏ\x02Ôx@©21')
+INFO:werkzeug:192.168.1.4 - - [12/Oct/2025 12:50:50] "[31m[1m\x16\x03\x01\x05ç\x01\x00\x05ã\x03\x03\x07õ\x10|&¼\x96J?\x93$Ì$='a"d+\x84ËdÐÙÏ\x02Ôx@©21 \x92\x90:J\x8b\x19IE\x87ÀþSNuá\x89ov=&ß8×è8\x19µºa\x93\x7f\x8e\x00,::\x13\x02\x13\x03\x13\x01À,À+Ì©À0À/Ì¨À[0m" 400 -
+INFO:werkzeug:192.168.1.8 - - [12/Oct/2025 12:51:02] "[31m[1mGET /camera HTTP/1.1[0m" 401 -
+INFO:werkzeug:127.0.0.1 - - [12/Oct/2025 12:52:04] "[31m[1mGET /camera HTTP/1.1[0m" 401 -
+INFO:werkzeug:127.0.0.1 - - [12/Oct/2025 12:52:31] "[31m[1mGET /camera?token=replace-this-token HTTP/1.1[0m" 401 -
