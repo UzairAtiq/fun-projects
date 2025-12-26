@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connection Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #1a1a2e;
+            color: #eee;
+        }
+        .test-box {
+            background: rgba(255,255,255,0.05);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover {
+            background: #5568d3;
+        }
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        .success { background: rgba(76, 175, 80, 0.2); color: #4caf50; }
+        .error { background: rgba(244, 67, 54, 0.2); color: #f44336; }
+        .info { background: rgba(33, 150, 243, 0.2); color: #2196f3; }
+        input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.05);
+            color: white;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Mac Control Connection Test</h1>
+    
+    <div class="test-box">
+        <h3>1. Check Your Network</h3>
+        <button onclick="checkNetwork()">🌐 Check Network</button>
+        <div id="networkResult"></div>
+    </div>
+
+    <div class="test-box">
+        <h3>2. Test Backend Connection</h3>
+        <input type="text" id="testUrl" placeholder="http://192.168.1.13:8080" value="http://192.168.1.13:8080">
+        <input type="text" id="testToken" placeholder="Token" value="replace-this-token">
+        <button onclick="testBackend()">🔌 Test Connection</button>
+        <div id="backendResult"></div>
+    </div>
+
+    <div class="test-box">
+        <h3>3. Check localStorage</h3>
+        <button onclick="checkStorage()">💾 Check Saved Settings</button>
+        <div id="storageResult"></div>
+    </div>
+
+    <div class="test-box">
+        <h3>4. Network Info</h3>
+        <div id="networkInfo" class="result info"></div>
+    </div>
+
+    <script>
+        // Display network info on load
+        window.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('networkInfo').textContent = 
+                `Your browser: ${navigator.userAgent}\n` +
+                `Current URL: ${window.location.href}\n` +
+                `Online: ${navigator.onLine}\n` +
+                `Language: ${navigator.language}`;
+        });
+
+        async function checkNetwork() {
+            const result = document.getElementById('networkResult');
+            result.innerHTML = '<div class="result info">Checking network...</div>';
+            
+            const checks = {
+                'Online Status': navigator.onLine,
+                'Current Domain': window.location.hostname,
+                'Protocol': window.location.protocol,
+                'Can Access Internet': false,
+                'Same Network as Mac': 'Unknown'
+            };
+
+            // Test internet connectivity
+            try {
+                await fetch('https://www.google.com', { mode: 'no-cors' });
+                checks['Can Access Internet'] = true;
+            } catch (e) {
+                checks['Can Access Internet'] = false;
+            }
+
+            let html = '<div class="result info">';
+            for (const [key, value] of Object.entries(checks)) {
+                html += `${key}: <strong>${value}</strong>\n`;
+            }
+            html += '\n⚠️ <strong>Important:</strong> To access http://192.168.1.13:8080 you must be on the SAME WiFi network as your Mac!\n';
+            html += '\n💡 If accessing from internet, use ngrok or Cloudflare Tunnel.</div>';
+            result.innerHTML = html;
+        }
+
+        async function testBackend() {
+            const url = document.getElementById('testUrl').value.trim();
+            const token = document.getElementById('testToken').value.trim();
+            const result = document.getElementById('backendResult');
+            
+            result.innerHTML = '<div class="result info">Testing connection...</div>';
+
+            try {
+                const response = await fetch(`${url}/status/`, {
+                    method: 'GET',
+                    headers: {
+                        'X-Auth-Token': token
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    result.innerHTML = `<div class="result success">✅ SUCCESS!\n\nResponse:\n${JSON.stringify(data, null, 2)}</div>`;
+                } else {
+                    result.innerHTML = `<div class="result error">❌ HTTP ${response.status}\n\n${response.statusText}</div>`;
+                }
+            } catch (error) {
+                let errorMsg = error.message;
+                let solution = '';
+
+                if (errorMsg.includes('Failed to fetch') || errorMsg.includes('NetworkError')) {
+                    solution = '\n\n🔴 NETWORK ERROR\n\nPossible causes:\n' +
+                        '1. You are NOT on the same WiFi network as your Mac\n' +
+                        '2. Your Mac\'s Flask server is not running\n' +
+                        '3. Firewall is blocking the connection\n' +
+                        '4. Wrong IP address\n\n' +
+                        '✅ Solutions:\n' +
+                        '• Connect to the same WiFi as your Mac\n' +
+                        '• Use: launchctl start com.user.maccontrol\n' +
+                        '• Check Mac IP: ifconfig | grep "inet "\n' +
+                        '• Use ngrok/Cloudflare for remote access';
+                } else if (errorMsg.includes('CORS')) {
+                    solution = '\n\n🔴 CORS ERROR\n\nThe server blocked the request.\nCORS is configured, but check Flask-CORS is installed.';
+                }
+
+                result.innerHTML = `<div class="result error">❌ CONNECTION FAILED\n\nError: ${errorMsg}${solution}</div>`;
+            }
+        }
+
+        function checkStorage() {
+            const result = document.getElementById('storageResult');
+            const apiUrl = localStorage.getItem('mac_control_api_url');
+            const token = localStorage.getItem('mac_control_auth_token');
+
+            let html = '<div class="result info">';
+            html += `API URL: ${apiUrl || '❌ Not set'}\n`;
+            html += `Token: ${token ? '✅ Set' : '❌ Not set'}\n`;
+            
+            if (!apiUrl || !token) {
+                html += '\n⚠️ Settings not configured! Go to Settings page.';
+            }
+            html += '</div>';
+            
+            result.innerHTML = html;
+        }
+    </script>
+</body>
+</html>
