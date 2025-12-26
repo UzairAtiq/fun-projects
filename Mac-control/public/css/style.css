@@ -802,3 +802,87 @@ body {
 .nav-link.active {
     background: var(--glass-bg);
 }
+
+/* Auto-detect button and status */
+.input-with-button {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.input-with-button input {
+    flex: 1;
+}
+
+.auto-detect-button {
+    padding: 10px 16px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.auto-detect-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.auto-detect-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+#autoDetectStatus {
+    margin-top: 12px;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+#autoDetectStatus p {
+    margin: 0;
+}
+
+#autoDetectStatus .detecting {
+    background: rgba(255, 193, 7, 0.1);
+    border: 1px solid rgba(255, 193, 7, 0.3);
+    color: #ff9800;
+    padding: 12px;
+    border-radius: 8px;
+}
+
+#autoDetectStatus .success {
+    background: rgba(76, 175, 80, 0.1);
+    border: 1px solid rgba(76, 175, 80, 0.3);
+    color: #4caf50;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+#autoDetectStatus .error {
+    background: rgba(244, 67, 54, 0.1);
+    border: 1px solid rgba(244, 67, 54, 0.3);
+    color: #f44336;
+    padding: 12px;
+    border-radius: 8px;
+}
+
+/* Responsive adjustments for mobile */
+@media (max-width: 768px) {
+    .input-with-button {
+        flex-direction: column;
+    }
+    
+    .input-with-button input,
+    .auto-detect-button {
+        width: 100%;
+    }
+}

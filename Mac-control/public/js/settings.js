@@ -5,7 +5,97 @@
 // Load current settings on page load
 document.addEventListener('DOMContentLoaded', () => {
     loadCurrentSettings();
+    
+    // Add auto-detect button handler
+    const autoDetectBtn = document.getElementById('autoDetect');
+    if (autoDetectBtn) {
+        autoDetectBtn.addEventListener('click', autoDetectMac);
+    }
 });
+
+/**
+ * Auto-detect Mac IP address
+ */
+async function autoDetectMac() {
+    const statusDiv = document.getElementById('autoDetectStatus');
+    const apiUrlInput = document.getElementById('apiUrl');
+    const autoDetectBtn = document.getElementById('autoDetect');
+    
+    // Disable button during detection
+    autoDetectBtn.disabled = true;
+    autoDetectBtn.textContent = '🔍 Detecting...';
+    statusDiv.innerHTML = '<p class="detecting">Scanning network for your Mac...</p>';
+    
+    const token = document.getElementById('authToken').value.trim() || 'replace-this-token';
+    
+    // Common IP patterns to try
+    const ipRanges = [
+        // Try common local IPs first (192.168.1.1-254)
+        ...Array.from({length: 254}, (_, i) => `http://192.168.1.${i + 1}:8080`),
+        // Then try 192.168.0.x
+        ...Array.from({length: 254}, (_, i) => `http://192.168.0.${i + 1}:8080`),
+        // Try 10.0.0.x
+        ...Array.from({length: 254}, (_, i) => `http://10.0.0.${i + 1}:8080`)
+    ];
+    
+    // Try IPs in batches of 10 for faster detection
+    const batchSize = 10;
+    
+    for (let i = 0; i < ipRanges.length; i += batchSize) {
+        const batch = ipRanges.slice(i, i + batchSize);
+        const currentProgress = Math.round((i / ipRanges.length) * 100);
+        statusDiv.innerHTML = `<p class="detecting">Scanning... ${currentProgress}% (trying ${batch[0].match(/\/\/(.+):/)[1]})</p>`;
+        
+        const results = await Promise.allSettled(
+            batch.map(url => testMacConnection(url, token))
+        );
+        
+        // Check if any succeeded
+        for (let j = 0; j < results.length; j++) {
+            if (results[j].status === 'fulfilled' && results[j].value) {
+                const foundUrl = batch[j];
+                apiUrlInput.value = foundUrl;
+                statusDiv.innerHTML = `<p class="success">✅ Found your Mac at ${foundUrl}!</p>`;
+                autoDetectBtn.disabled = false;
+                autoDetectBtn.textContent = '🔍 Auto-Detect Mac';
+                return;
+            }
+        }
+    }
+    
+    // Not found
+    statusDiv.innerHTML = '<p class="error">❌ Could not find your Mac. Please enter IP manually.</p>';
+    autoDetectBtn.disabled = false;
+    autoDetectBtn.textContent = '🔍 Auto-Detect Mac';
+}
+
+/**
+ * Test connection to a specific Mac URL
+ */
+async function testMacConnection(url, token) {
+    try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 1000); // 1 second timeout
+        
+        const response = await fetch(`${url}/status/`, {
+            method: 'GET',
+            headers: {
+                'X-Auth-Token': token
+            },
+            signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
+        
+        if (response.ok) {
+            const data = await response.json();
+            return data.status === 'ok';
+        }
+        return false;
+    } catch (error) {
+        return false;
+    }
+}
 
 /**
  * Load current settings from localStorage

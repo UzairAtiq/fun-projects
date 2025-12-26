@@ -43,14 +43,20 @@
                     <h3>🔗 Connection Settings</h3>
                     <div class="form-group">
                         <label for="apiUrl">API URL (Your Mac's IP)</label>
-                        <input type="text" id="apiUrl" placeholder="http://192.168.1.100:8080">
+                        <div class="input-with-button">
+                            <input type="text" id="apiUrl" placeholder="http://192.168.1.100:8080">
+                            <button id="autoDetect" class="auto-detect-button" title="Automatically find your Mac">
+                                🔍 Auto-Detect Mac
+                            </button>
+                        </div>
                         <small>Example: http://192.168.1.100:8080 (same Wi-Fi network)</small>
+                        <div id="autoDetectStatus"></div>
                     </div>
 
                     <div class="form-group">
                         <label for="authToken">Authentication Token</label>
-                        <input type="password" id="authToken" placeholder="Enter your secure token">
-                        <small>This is the token you generated during setup</small>
+                        <input type="password" id="authToken" placeholder="Enter your secure token" value="replace-this-token">
+                        <small>Default token: replace-this-token (change in app/config.py)</small>
                     </div>
 
                     <button onclick="saveSettings()" class="save-button">💾 Save Settings</button>
