@@ -1,36 +1,142 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🎨 Anime Character Gallery
 
-## Getting Started
+A modern, production-ready Next.js application for managing anime characters with secure authentication, cloud-synced data, and a premium UI.
 
-First, run the development server:
+## ✨ Features
+
+- 🔐 **Secure Authentication** - Password-based login with Supabase Auth
+- 🗄️ **Cloud Database** - PostgreSQL database with Row Level Security
+- 🖼️ **Image Storage** - Upload and manage character images
+- 🎨 **Modern UI** - Built with shadcn/ui and Hero UI
+- 📱 **Responsive Design** - Mobile-first approach
+- 🔄 **Real-time Sync** - Data syncs across all devices
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- Node.js 18+ installed
+- A Supabase account (free tier works great!)
+
+### 1. Clone and Install
+
+```bash
+cd /Users/uzair/Developer/Projects/anime-char-gallery
+npm install
+```
+
+### 2. Set Up Supabase
+
+1. Go to [supabase.com](https://supabase.com) and create a new project
+2. Wait for the project to initialize (~2 minutes)
+3. Go to **Project Settings** > **API** and copy:
+   - Project URL (looks like: `https://xxxxx.supabase.co`)
+   - Anon/Public Key (starts with `eyJ...`)
+
+### 3. Configure Environment Variables
+
+Create a `.env.local` file:
+
+```bash
+cp .env.local.example .env.local
+```
+
+Edit `.env.local` and add your Supabase credentials:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=your-project-url-here
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
+```
+
+### 4. Set Up Database
+
+1. In Supabase Dashboard, go to **SQL Editor**
+2. Click **New Query**
+3. Copy the contents of `supabase/schema.sql`
+4. Paste and run the query to create tables and security policies
+
+### 5. Set Up Storage
+
+1. In Supabase Dashboard, go to **Storage**
+2. Click **Create a new bucket**
+3. Name it: `character-images`
+4. Make it **Public**
+5. Click Create
+
+### 6. Run the Development Server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser!
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 📖 Usage
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. **Sign Up**: Create an account on the login page
+2. **Add Categories**: Click "Categories" to create character categories (e.g., "Shonen", "Seinen")
+3. **Add Characters**: Click "Add Character" to upload character images
+4. **Manage**: Click the edit/delete icons on character cards to update your collection
 
-## Learn More
+## 🛠️ Tech Stack
 
-To learn more about Next.js, take a look at the following resources:
+- **Framework**: Next.js 14 (App Router)
+- **Database**: Supabase (PostgreSQL)
+- **Authentication**: Supabase Auth
+- **Storage**: Supabase Storage
+- **UI Components**: shadcn/ui + Hero UI
+- **Styling**: Tailwind CSS
+- **Language**: TypeScript
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 📁 Project Structure
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+anime-char-gallery/
+├── app/
+│   ├── actions/          # Server Actions
+│   │   ├── characters.ts
+│   │   ├── categories.ts
+│   │   └── storage.ts
+│   ├── dashboard/        # Main dashboard page
+│   ├── login/           # Authentication page
+│   └── layout.tsx       # Root layout
+├── components/
+│   ├── ui/              # shadcn/ui components
+│   ├── character-card.tsx
+│   ├── character-grid.tsx
+│   ├── add-character-modal.tsx
+│   └── edit-character-modal.tsx
+├── lib/
+│   ├── supabase/        # Supabase clients
+│   ├── database.types.ts # TypeScript types
+│   └── utils.ts         # Utility functions
+└── supabase/
+    └── schema.sql       # Database schema
+```
 
-## Deploy on Vercel
+## 🔒 Security
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- Row Level Security (RLS) ensures users can only access their own data
+- Images are stored in Supabase Storage with secure URLs
+- Authentication handled by Supabase Auth
+- Server-side validation on all data mutations
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🚀 Deployment
+
+### Deploy to Vercel
+
+1. Push your code to GitHub
+2. Go to [vercel.com](https://vercel.com)
+3. Import your repository
+4. Add environment variables (same as `.env.local`)
+5. Deploy!
+
+Your app will be live at `https://your-app.vercel.app`
+
+## 📝 License
+
+MIT
+
+## 🤝 Contributing
+
+Feel free to submit issues and enhancement requests!
