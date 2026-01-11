@@ -40,7 +40,8 @@ export async function createCharacter(formData: FormData) {
   });
 
   if (error) {
-    throw new Error(error.message);
+    console.error("Character creation error:", error);
+    throw new Error(`Failed to create character: ${error.message}`);
   }
 
   revalidatePath("/dashboard");

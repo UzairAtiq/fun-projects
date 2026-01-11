@@ -1,54 +1,54 @@
 @import "tailwindcss";
 
 @theme {
-  /* Soft Slate Professional Palette */
-  --color-background: 248 250 252;  /* #F8FAFC */
-  --color-foreground: 15 23 42;     /* #0F172A */
-  --color-card: 255 255 255;        /* #FFFFFF */
-  --color-card-foreground: 15 23 42;
-  --color-popover: 255 255 255;
-  --color-popover-foreground: 15 23 42;
+  /* 🗡️ Samurai Dark Theme - Color Palette */
   
-  /* Slate Primary */
-  --color-primary: 71 85 105;       /* #475569 */
+  /* Backgrounds */
+  --color-background: 13 13 15;     /* #0D0D0F - Main dark */
+  --color-foreground: 250 250 250;  /* #FAFAFA - Primary text */
+  --color-card: 20 20 23;           /* #141417 - Card surfaces */
+  --color-card-foreground: 250 250 250;
+  --color-popover: 26 26 31;        /* #1A1A1F - Elevated surfaces */
+  --color-popover-foreground: 250 250 250;
+  
+  /* Crimson Primary */
+  --color-primary: 220 38 38;       /* #DC2626 - Crimson red */
   --color-primary-foreground: 255 255 255;
   
-  /* Indigo Accent */
-  --color-accent-primary: 99 102 241; /* #6366F1 */
+  /* Secondary (dark metallic) */
+  --color-secondary: 39 39 42;      /* #27272A */
+  --color-secondary-foreground: 250 250 250;
+  
+  /* Muted tones */
+  --color-muted: 39 39 42;
+  --color-muted-foreground: 113 113 122;  /* #71717A */
+  
+  /* Accent (crimson glow) */
+  --color-accent: 239 68 68;        /* #EF4444 - Bright crimson */
   --color-accent-foreground: 255 255 255;
   
-  /* Muted Slate */
-  --color-secondary: 241 245 249;
-  --color-secondary-foreground: 15 23 42;
-  
-  --color-muted: 241 245 249;
-  --color-muted-foreground: 100 116 139;
-  
-  --color-accent: 241 245 249;
-  --color-accent-foreground: 15 23 42;
-  
   /* Destructive */
-  --color-destructive: 239 68 68;
+  --color-destructive: 185 28 28;
   --color-destructive-foreground: 255 255 255;
   
   /* Borders */
-  --color-border: 226 232 240;      /* #E2E8F0 */
-  --color-input: 226 232 240;
-  --color-ring: 99 102 241;         /* Indigo accent for focus rings */
+  --color-border: 39 39 42;         /* #27272A */
+  --color-input: 39 39 42;
+  --color-ring: 220 38 38;          /* Crimson focus ring */
   
-  --radius: 0.75rem;
+  --radius: 0.5rem;                 /* Sharp edges */
 }
 
-/* Premium Animation Keyframes */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+/* Glow Keyframes */
+@keyframes crimsonPulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(220, 38, 38, 0.3); }
+  50% { box-shadow: 0 0 40px rgba(220, 38, 38, 0.5); }
 }
 
-@keyframes slideUp {
+@keyframes fadeSlideUp {
   from { 
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(20px);
   }
   to { 
     opacity: 1;
@@ -67,20 +67,10 @@
   }
 }
 
-@keyframes deleteOut {
-  from {
-    opacity: 1;
-    transform: scale(1);
-  }
-  to {
-    opacity: 0;
-    transform: scale(0.8) translateY(10px);
-  }
-}
-
-@keyframes shimmer {
-  0% { background-position: -1000px 0; }
-  100% { background-position: 1000px 0; }
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
 }
 
 @keyframes float {
@@ -88,35 +78,72 @@
   50% { transform: translateY(-10px); }
 }
 
+/* Global Styles */
 * {
   border-color: hsl(var(--color-border));
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
-  background-color: hsl(var(--color-background));
+  background-color: #0D0D0F;
   color: hsl(var(--color-foreground));
   font-family: var(--font-inter);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Scrollbar styling */
+/* Custom Scrollbar - Samurai Style */
 ::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: hsl(var(--color-muted));
-  border-radius: 5px;
+  background: #0D0D0F;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: hsl(var(--color-border));
-  border-radius: 5px;
-  border: 2px solid hsl(var(--color-muted));
+  background: #27272A;
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: hsl(var(--color-primary) / 0.5);
+  background: #DC2626;
+}
+
+/* Selection - Crimson */
+::selection {
+  background: rgba(220, 38, 38, 0.3);
+  color: #FAFAFA;
+}
+
+/* Focus Ring - Crimson Glow */
+*:focus-visible {
+  outline: 2px solid #DC2626;
+  outline-offset: 2px;
+}
+
+/* Crimson Glow Effect Utility */
+.glow-crimson {
+  box-shadow: 0 0 20px rgba(220, 38, 38, 0.4);
+}
+
+.glow-crimson-lg {
+  box-shadow: 0 0 40px rgba(220, 38, 38, 0.5);
+}
+
+/* Card Hover Glow */
+.card-glow:hover {
+  box-shadow: 0 0 30px rgba(220, 38, 38, 0.3), 
+              0 0 60px rgba(220, 38, 38, 0.1);
+}
+
+/* Glass Effect for Headers */
+.glass-dark {
+  background: rgba(13, 13, 15, 0.8);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(220, 38, 38, 0.1);
 }

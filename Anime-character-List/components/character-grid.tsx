@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { CharacterCard } from "./character-card";
 import type { CharacterWithCategory } from "@/lib/database.types";
-import { Sparkles } from "lucide-react";
+import { Swords } from "lucide-react";
 
 interface CharacterGridProps {
   characters: CharacterWithCategory[];
@@ -22,33 +22,32 @@ export function CharacterGrid({ characters, onEdit, onDelete }: CharacterGridPro
       >
         <motion.div
           animate={{ 
-            rotate: [0, 5, -5, 0],
-            scale: [1, 1.05, 1]
+            y: [0, -10, 0]
           }}
           transition={{ 
-            duration: 2,
+            duration: 3,
             repeat: Infinity,
-            repeatType: "reverse"
+            ease: "easeInOut"
           }}
-          className="mb-6 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 p-6"
+          className="mb-6 p-6 rounded-lg bg-[#141417] border border-[#27272A]"
         >
-          <Sparkles className="h-16 w-16 text-primary" />
+          <Swords className="h-16 w-16 text-[#DC2626]" />
         </motion.div>
         <motion.h3 
-          className="text-2xl font-semibold mb-2 text-foreground"
+          className="text-2xl font-semibold mb-2 text-[#FAFAFA]"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          No characters yet
+          No warriors yet
         </motion.h3>
         <motion.p 
-          className="text-muted-foreground mb-4 max-w-sm"
+          className="text-[#71717A] mb-4 max-w-sm"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
         >
-          Click the <span className="font-semibold text-primary">"Add Character"</span> button to create your first character
+          Click <span className="font-semibold text-[#DC2626]">"Add Character"</span> to summon your first warrior
         </motion.p>
       </motion.div>
     );

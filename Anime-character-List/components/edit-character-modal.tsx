@@ -115,22 +115,19 @@ export function EditCharacterModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <AnimatePresence>
         {open && (
-          <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden border-0 bg-gradient-to-br from-white via-white to-primary/5">
+          <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden border border-[#27272A] bg-[#141417] shadow-[0_0_50px_rgba(220,38,38,0.15)]">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.2 }}
             >
-              <DialogHeader className="px-6 pt-6 pb-4 border-b border-border/40 bg-gradient-to-r from-primary/5 to-transparent">
+              <DialogHeader className="px-6 pt-6 pb-4 border-b border-[#27272A] bg-gradient-to-r from-[#DC2626]/10 to-transparent">
                 <div className="flex items-center gap-3">
-                  <motion.div
-                    className="p-2 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5"
-                    whileHover={{ rotate: 5 }}
-                  >
-                    <Pencil className="h-5 w-5 text-primary" />
-                  </motion.div>
-                  <DialogTitle className="text-xl font-semibold">Edit Character</DialogTitle>
+                  <div className="p-2 rounded-lg bg-[#DC2626]/20 border border-[#DC2626]/30">
+                    <Pencil className="h-5 w-5 text-[#DC2626]" />
+                  </div>
+                  <DialogTitle className="text-xl font-semibold text-[#FAFAFA]">Edit Warrior</DialogTitle>
                 </div>
               </DialogHeader>
               
@@ -141,14 +138,14 @@ export function EditCharacterModal({
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1 }}
                 >
-                  <Label htmlFor="edit-name" className="text-sm font-medium">Character Name *</Label>
+                  <Label htmlFor="edit-name" className="text-sm font-medium text-[#FAFAFA]">Warrior Name *</Label>
                   <Input
                     id="edit-name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="Enter character name"
+                    placeholder="Enter warrior name"
                     required
-                    className="h-11"
+                    className="h-11 bg-[#0D0D0F] border-[#27272A] text-[#FAFAFA] placeholder:text-[#71717A] focus:border-[#DC2626]"
                   />
                 </motion.div>
 
@@ -158,15 +155,19 @@ export function EditCharacterModal({
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.15 }}
                 >
-                  <Label htmlFor="edit-category" className="text-sm font-medium">Category</Label>
+                  <Label htmlFor="edit-category" className="text-sm font-medium text-[#FAFAFA]">Category</Label>
                   <Select value={categoryId} onValueChange={setCategoryId}>
-                    <SelectTrigger className="h-11">
+                    <SelectTrigger className="h-11 bg-[#0D0D0F] border-[#27272A] text-[#FAFAFA]">
                       <SelectValue placeholder="Select a category" />
                     </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="">No category</SelectItem>
+                    <SelectContent className="bg-[#141417] border-[#27272A]">
+                      <SelectItem value="" className="text-[#FAFAFA] focus:bg-[#27272A] focus:text-[#FAFAFA]">No category</SelectItem>
                       {categories.map((category) => (
-                        <SelectItem key={category.id} value={category.id}>
+                        <SelectItem 
+                          key={category.id} 
+                          value={category.id}
+                          className="text-[#FAFAFA] focus:bg-[#27272A] focus:text-[#FAFAFA]"
+                        >
                           {category.name}
                         </SelectItem>
                       ))}
@@ -180,11 +181,11 @@ export function EditCharacterModal({
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 }}
                 >
-                  <Label htmlFor="edit-image" className="text-sm font-medium">New Image (optional)</Label>
+                  <Label htmlFor="edit-image" className="text-sm font-medium text-[#FAFAFA]">New Image (optional)</Label>
                   <div className="flex flex-col gap-3">
                     <label
                       htmlFor="edit-image"
-                      className="relative flex items-center justify-center h-40 rounded-xl border-2 border-dashed border-border/60 hover:border-primary/40 transition-colors cursor-pointer bg-gradient-to-br from-muted/30 to-muted/10 group overflow-hidden"
+                      className="relative flex items-center justify-center h-40 rounded-lg border-2 border-dashed border-[#27272A] hover:border-[#DC2626]/50 transition-colors cursor-pointer bg-[#0D0D0F] group overflow-hidden"
                     >
                       {preview || character.image_url ? (
                         <div className="relative w-full h-full">
@@ -193,18 +194,15 @@ export function EditCharacterModal({
                             alt={character.name}
                             className="w-full h-full object-cover"
                           />
-                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                            <ImagePlus className="h-8 w-8 text-white" />
+                          <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <ImagePlus className="h-8 w-8 text-[#DC2626]" />
                           </div>
                         </div>
                       ) : (
                         <div className="text-center p-4">
-                          <ImagePlus className="h-10 w-10 mx-auto mb-2 text-muted-foreground group-hover:text-primary transition-colors" />
-                          <p className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors">
+                          <ImagePlus className="h-10 w-10 mx-auto mb-2 text-[#71717A] group-hover:text-[#DC2626] transition-colors" />
+                          <p className="text-sm font-medium text-[#71717A] group-hover:text-[#FAFAFA] transition-colors">
                             Click to upload new image
-                          </p>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            Max 5MB • JPG, PNG, WebP, GIF
                           </p>
                         </div>
                       )}
@@ -220,14 +218,14 @@ export function EditCharacterModal({
                       <motion.div
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        className="flex items-center gap-2 text-sm text-primary px-3 py-2 bg-primary/5 rounded-lg border border-primary/20"
+                        className="flex items-center gap-2 text-sm text-[#DC2626] px-3 py-2 bg-[#DC2626]/10 rounded-lg border border-[#DC2626]/20"
                       >
                         <Upload className="h-4 w-4" />
                         <span className="font-medium truncate">{file.name}</span>
                       </motion.div>
                     )}
                     {!file && (
-                      <p className="text-xs text-muted-foreground px-1">
+                      <p className="text-xs text-[#71717A] px-1">
                         Leave empty to keep current image
                       </p>
                     )}
@@ -240,7 +238,7 @@ export function EditCharacterModal({
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: "auto" }}
                       exit={{ opacity: 0, height: 0 }}
-                      className="text-sm text-destructive bg-destructive/5 px-3 py-2 rounded-lg border border-destructive/20"
+                      className="text-sm text-[#DC2626] bg-[#DC2626]/10 px-3 py-2 rounded-lg border border-[#DC2626]/20"
                     >
                       {error}
                     </motion.p>
@@ -257,26 +255,24 @@ export function EditCharacterModal({
                   >
                     Cancel
                   </Button>
-                  <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="flex-1 sm:flex-none">
-                    <Button 
-                      type="submit" 
-                      disabled={isPending || uploading}
-                      className="w-full shadow-md shadow-primary/20 bg-gradient-to-r from-primary to-primary/90"
-                    >
-                      {uploading || isPending ? (
-                        <>
-                          <motion.div
-                            className="h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-2"
-                            animate={{ rotate: 360 }}
-                            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                          />
-                          Updating...
-                        </>
-                      ) : (
-                        "Update Character"
-                      )}
-                    </Button>
-                  </motion.div>
+                  <Button 
+                    type="submit" 
+                    disabled={isPending || uploading}
+                    className="flex-1 sm:flex-none"
+                  >
+                    {uploading || isPending ? (
+                      <>
+                        <motion.div
+                          className="h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-2"
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                        />
+                        Updating...
+                      </>
+                    ) : (
+                      "Update Warrior"
+                    )}
+                  </Button>
                 </DialogFooter>
               </form>
             </motion.div>

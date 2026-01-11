@@ -25,7 +25,8 @@ export async function createCategory(name: string) {
   const { error } = await supabase.from("categories").insert({ name });
 
   if (error) {
-    throw new Error(error.message);
+    console.error("Category creation error:", error);
+    throw new Error(`Failed to create category: ${error.message}`);
   }
 
   revalidatePath("/dashboard");

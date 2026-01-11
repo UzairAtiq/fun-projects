@@ -36,7 +36,8 @@ export async function uploadImage(formData: FormData): Promise<string> {
     });
 
   if (error) {
-    throw new Error(error.message);
+    console.error("Storage upload error:", error);
+    throw new Error(`Failed to upload image: ${error.message}. Make sure the 'character-images' storage bucket exists and is public.`);
   }
 
   // Get public URL
