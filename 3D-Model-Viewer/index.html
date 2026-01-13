@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Model Viewer</title>
+    <title>✨ 3D Model Viewer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -12,11 +13,31 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #16213e 100%);
+            font-family: 'Outfit', sans-serif;
+            background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 25%, #f5d0fe 50%, #e9d5ff 75%, #ddd6fe 100%);
             min-height: 100vh;
             overflow: hidden;
-            color: #ffffff;
+            color: #4a4a6a;
+        }
+
+        /* Floating Decorations */
+        .floating-decoration {
+            position: fixed;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0.6;
+            font-size: 2rem;
+        }
+
+        .deco-1 { top: 10%; left: 5%; animation: float 6s ease-in-out infinite; }
+        .deco-2 { top: 20%; right: 8%; animation: float 8s ease-in-out infinite 1s; }
+        .deco-3 { bottom: 15%; left: 10%; animation: float 7s ease-in-out infinite 0.5s; }
+        .deco-4 { bottom: 25%; right: 5%; animation: float 5s ease-in-out infinite 2s; }
+        .deco-5 { top: 50%; left: 3%; animation: float 9s ease-in-out infinite 1.5s; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(10deg); }
         }
 
         /* Header Controls */
@@ -30,9 +51,22 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 30px;
-            background: linear-gradient(180deg, rgba(10, 10, 15, 0.95) 0%, rgba(10, 10, 15, 0) 100%);
+            gap: 24px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0) 100%);
+            backdrop-filter: blur(20px);
             flex-wrap: wrap;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ec4899 0%, #a855f7 50%, #6366f1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .control-group {
@@ -42,42 +76,45 @@
         }
 
         .control-label {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 500;
-            color: #a0a0b0;
+            color: #9ca3af;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 1.5px;
         }
 
         /* Dropdown Styles */
         .model-selector {
-            padding: 12px 20px;
+            padding: 12px 24px;
             font-size: 14px;
-            border: 1px solid rgba(100, 100, 255, 0.3);
-            border-radius: 12px;
-            background: rgba(20, 20, 40, 0.8);
-            color: #ffffff;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 500;
+            border: 2px solid rgba(236, 72, 153, 0.3);
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #6b7280;
             cursor: pointer;
             min-width: 200px;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             outline: none;
+            box-shadow: 0 4px 15px rgba(236, 72, 153, 0.1);
         }
 
         .model-selector:hover {
-            border-color: rgba(100, 100, 255, 0.6);
-            box-shadow: 0 0 20px rgba(100, 100, 255, 0.2);
+            border-color: #ec4899;
+            box-shadow: 0 8px 25px rgba(236, 72, 153, 0.2);
+            transform: translateY(-2px);
         }
 
         .model-selector:focus {
-            border-color: #6464ff;
-            box-shadow: 0 0 25px rgba(100, 100, 255, 0.3);
+            border-color: #ec4899;
+            box-shadow: 0 0 0 4px rgba(236, 72, 153, 0.15), 0 8px 25px rgba(236, 72, 153, 0.2);
         }
 
         .model-selector option {
-            background: #1a1a2e;
-            color: #ffffff;
-            padding: 10px;
+            background: #ffffff;
+            color: #4a4a6a;
+            padding: 12px;
         }
 
         /* Toggle Switch */
@@ -106,9 +143,9 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(40, 40, 60, 0.8);
-            border: 1px solid rgba(100, 100, 255, 0.3);
-            border-radius: 28px;
+            background: rgba(200, 200, 220, 0.5);
+            border: 2px solid rgba(200, 200, 220, 0.5);
+            border-radius: 50px;
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
@@ -117,23 +154,22 @@
             position: absolute;
             height: 20px;
             width: 20px;
-            left: 4px;
-            bottom: 3px;
-            background: linear-gradient(135deg, #ffffff, #d0d0e0);
+            left: 2px;
+            bottom: 2px;
+            background: #ffffff;
             border-radius: 50%;
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
         }
 
         .toggle-switch input:checked + .toggle-slider {
-            background: linear-gradient(135deg, #6464ff, #8080ff);
-            border-color: #8080ff;
-            box-shadow: 0 0 20px rgba(100, 100, 255, 0.4);
+            background: linear-gradient(135deg, #ec4899, #a855f7);
+            border-color: transparent;
+            box-shadow: 0 4px 15px rgba(236, 72, 153, 0.3);
         }
 
         .toggle-switch input:checked + .toggle-slider::before {
-            transform: translateX(26px);
-            background: linear-gradient(135deg, #ffffff, #f0f0ff);
+            transform: translateX(28px);
         }
 
         /* 3D Viewer Container */
@@ -143,38 +179,41 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            position: relative;
+            z-index: 10;
         }
 
         #canvas-container {
             position: relative;
-            width: 85vw;
-            height: 80vh;
-            max-width: 1200px;
-            border-radius: 24px;
+            width: 80vw;
+            height: 75vh;
+            max-width: 1000px;
+            border-radius: 32px;
             overflow: hidden;
-            background: linear-gradient(145deg, rgba(20, 20, 35, 0.6), rgba(10, 10, 20, 0.8));
-            border: 1px solid rgba(100, 100, 255, 0.2);
+            background: rgba(255, 255, 255, 0.7);
+            border: 2px solid rgba(255, 255, 255, 0.8);
             box-shadow: 
-                0 25px 80px rgba(0, 0, 0, 0.5),
-                0 0 100px rgba(100, 100, 255, 0.1),
-                inset 0 0 60px rgba(100, 100, 255, 0.05);
+                0 32px 64px rgba(168, 85, 247, 0.15),
+                0 16px 32px rgba(236, 72, 153, 0.1),
+                inset 0 0 80px rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(20px);
+            animation: containerFloat 8s ease-in-out infinite;
+        }
+
+        @keyframes containerFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
         }
 
         #canvas-container::before {
             content: '';
             position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle at center, rgba(100, 100, 255, 0.03) 0%, transparent 50%);
-            pointer-events: none;
-            animation: pulse 8s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 0.5; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.05); }
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #ec4899, #a855f7, #6366f1, transparent);
+            opacity: 0.8;
         }
 
         canvas {
@@ -190,7 +229,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(10, 10, 20, 0.9);
+            background: rgba(255, 255, 255, 0.95);
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -200,6 +239,7 @@
             opacity: 0;
             visibility: hidden;
             transition: all 0.4s ease;
+            backdrop-filter: blur(10px);
         }
 
         .loading-overlay.active {
@@ -210,8 +250,8 @@
         .loader {
             width: 50px;
             height: 50px;
-            border: 3px solid rgba(100, 100, 255, 0.2);
-            border-top-color: #6464ff;
+            border: 3px solid rgba(236, 72, 153, 0.2);
+            border-top-color: #ec4899;
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
@@ -221,8 +261,9 @@
         }
 
         .loading-text {
-            color: #a0a0b0;
-            font-size: 14px;
+            color: #9ca3af;
+            font-size: 13px;
+            font-weight: 500;
             letter-spacing: 2px;
             text-transform: uppercase;
         }
@@ -234,12 +275,26 @@
             left: 50%;
             transform: translateX(-50%);
             display: flex;
-            gap: 30px;
-            padding: 15px 30px;
-            background: rgba(20, 20, 40, 0.8);
-            border: 1px solid rgba(100, 100, 255, 0.2);
-            border-radius: 16px;
-            backdrop-filter: blur(10px);
+            gap: 20px;
+            padding: 16px 28px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(236, 72, 153, 0.2);
+            border-radius: 50px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 8px 32px rgba(168, 85, 247, 0.1);
+            z-index: 100;
+            animation: instructionsSlideUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) 0.5s both;
+        }
+
+        @keyframes instructionsSlideUp {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
         }
 
         .instruction-item {
@@ -247,18 +302,47 @@
             align-items: center;
             gap: 8px;
             font-size: 12px;
-            color: #808090;
+            font-weight: 500;
+            color: #9ca3af;
         }
 
         .instruction-icon {
-            width: 24px;
-            height: 24px;
+            width: 28px;
+            height: 28px;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: rgba(100, 100, 255, 0.2);
-            border-radius: 6px;
-            font-size: 10px;
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.1), rgba(168, 85, 247, 0.1));
+            border-radius: 10px;
+            font-size: 12px;
+        }
+
+        /* Framer Motion Initial States for JS */
+        .fade-in {
+            animation: fadeIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .scale-in {
+            animation: scaleIn 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .slide-down {
+            animation: slideDown 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         /* Responsive */
@@ -268,44 +352,67 @@
                 gap: 15px;
             }
 
+            .logo {
+                font-size: 1.2rem;
+            }
+
             .control-label {
-                font-size: 12px;
+                font-size: 11px;
             }
 
             .model-selector {
                 min-width: 150px;
-                padding: 10px 15px;
+                padding: 10px 18px;
+                font-size: 13px;
             }
 
             #canvas-container {
-                width: 95vw;
-                height: 70vh;
-                border-radius: 16px;
+                width: 92vw;
+                height: 65vh;
+                border-radius: 24px;
             }
 
             .instructions {
                 flex-wrap: wrap;
                 justify-content: center;
-                gap: 15px;
-                padding: 12px 20px;
+                gap: 12px;
+                padding: 14px 20px;
                 bottom: 15px;
+                border-radius: 24px;
+            }
+
+            .floating-decoration {
+                display: none;
             }
         }
     </style>
 </head>
 <body>
+    <!-- Floating Decorations -->
+    <div class="floating-decoration deco-1">✨</div>
+    <div class="floating-decoration deco-2">🌸</div>
+    <div class="floating-decoration deco-3">💫</div>
+    <div class="floating-decoration deco-4">🦋</div>
+    <div class="floating-decoration deco-5">💜</div>
+
     <!-- Controls Header -->
-    <header class="controls-header">
+    <header class="controls-header slide-down">
+        <div class="logo">
+            <span>✨</span>
+            <span>3D Viewer</span>
+        </div>
+
         <div class="control-group">
             <span class="control-label">Model</span>
             <select id="modelSelector" class="model-selector">
-                <option value="duck">Duck</option>
-                <option value="helmet">Damaged Helmet</option>
-                <option value="avocado">Avocado</option>
-                <option value="robot">Robot</option>
-                <option value="yor">Yor</option>
-                <option value="frozenQueen">Frozen Queen</option>
-                <option value="heatblast">Heatblast (Ben 10)</option>
+                <option value="duck">🦆 Duck</option>
+                <option value="helmet">🪖 Damaged Helmet</option>
+                <option value="avocado">🥑 Avocado</option>
+                <option value="robot">🤖 Robot</option>
+                <option value="yor">💖 Yor</option>
+                <option value="frozenQueen">❄️ Frozen Queen</option>
+                <option value="heatblast">🔥 Heatblast (Ben 10)</option>
+                <option value="diamondhead">💎 Diamondhead (Ben 10)</option>
             </select>
         </div>
 
@@ -320,10 +427,10 @@
 
     <!-- 3D Viewer -->
     <div class="viewer-container">
-        <div id="canvas-container">
+        <div id="canvas-container" class="scale-in">
             <div class="loading-overlay" id="loadingOverlay">
                 <div class="loader"></div>
-                <span class="loading-text">Loading Model...</span>
+                <span class="loading-text">Loading Magic...</span>
             </div>
             <!-- Sketchfab Embed Container -->
             <iframe 
@@ -334,7 +441,7 @@
                 mozallowfullscreen="true" 
                 webkitallowfullscreen="true" 
                 allow="autoplay; fullscreen; xr-spatial-tracking"
-                style="display: none; width: 100%; height: 100%; position: absolute; top: 0; left: 0; border-radius: 24px;"
+                style="display: none; width: 100%; height: 100%; position: absolute; top: 0; left: 0; border-radius: 32px;"
             ></iframe>
         </div>
     </div>
@@ -346,7 +453,7 @@
             <span>Drag to rotate</span>
         </div>
         <div class="instruction-item">
-            <span class="instruction-icon">⚲</span>
+            <span class="instruction-icon">🔍</span>
             <span>Scroll to zoom</span>
         </div>
         <div class="instruction-item">
@@ -379,7 +486,13 @@
             avocado: 'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/main/2.0/Avocado/glTF-Binary/Avocado.glb',
             robot: 'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/main/2.0/RobotExpressive/glTF-Binary/RobotExpressive.glb',
             yor: 'https://raw.githubusercontent.com/UzairAtiq/glb-File-model/main/model.glb',
-            frozenQueen: 'https://raw.githubusercontent.com/UzairAtiq/glb-File-model/main/sexy_frozen_queen.glb'
+            frozenQueen: 'https://raw.githubusercontent.com/UzairAtiq/glb-File-model/main/sexy_frozen_queen.glb',
+            diamondhead: 'https://raw.githubusercontent.com/UzairAtiq/glb-File-model/main/diamondhead_-_ben_10.glb'
+        };
+
+        // Sketchfab Embed URLs
+        const SKETCHFAB_EMBEDS = {
+            heatblast: 'https://sketchfab.com/models/490ddacc134349239fd675d82d042ae5/embed'
         };
 
         // ============================================================
@@ -389,10 +502,11 @@
         const loadingOverlay = document.getElementById('loadingOverlay');
         const modelSelector = document.getElementById('modelSelector');
         const followToggle = document.getElementById('followToggle');
+        const sketchfabEmbed = document.getElementById('sketchfabEmbed');
 
-        // Scene
+        // Scene with soft gradient background
         const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x0a0a14);
+        scene.background = new THREE.Color(0xfdf2f8);
 
         // Camera
         const camera = new THREE.PerspectiveCamera(
@@ -412,13 +526,13 @@
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         renderer.outputColorSpace = THREE.SRGBColorSpace;
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 1;
+        renderer.toneMappingExposure = 1.2;
         container.appendChild(renderer.domElement);
 
         // ============================================================
-        // Lighting
+        // Lighting - Soft and Dreamy
         // ============================================================
-        const ambientLight = new THREE.AmbientLight(0x404060, 0.5);
+        const ambientLight = new THREE.AmbientLight(0xfce7f3, 0.6);
         scene.add(ambientLight);
 
         const mainLight = new THREE.DirectionalLight(0xffffff, 2);
@@ -426,13 +540,13 @@
         mainLight.castShadow = true;
         scene.add(mainLight);
 
-        const fillLight = new THREE.DirectionalLight(0x6464ff, 0.8);
-        fillLight.position.set(-5, 3, -5);
-        scene.add(fillLight);
+        const pinkLight = new THREE.DirectionalLight(0xec4899, 0.5);
+        pinkLight.position.set(-5, 3, -5);
+        scene.add(pinkLight);
 
-        const rimLight = new THREE.DirectionalLight(0xff6464, 0.5);
-        rimLight.position.set(0, -3, -5);
-        scene.add(rimLight);
+        const purpleLight = new THREE.DirectionalLight(0xa855f7, 0.4);
+        purpleLight.position.set(0, -3, 5);
+        scene.add(purpleLight);
 
         // Environment for reflections
         const pmremGenerator = new THREE.PMREMGenerator(renderer);
@@ -468,6 +582,31 @@
         }
 
         function loadModel(modelKey) {
+            // Check if it's a Sketchfab embed
+            const sketchfabUrl = SKETCHFAB_EMBEDS[modelKey];
+            if (sketchfabUrl) {
+                // Hide Three.js canvas and show Sketchfab iframe
+                if (renderer.domElement) {
+                    renderer.domElement.style.display = 'none';
+                }
+                sketchfabEmbed.src = sketchfabUrl;
+                sketchfabEmbed.style.display = 'block';
+                
+                // Remove any existing Three.js model
+                if (currentModel) {
+                    scene.remove(currentModel);
+                    currentModel = null;
+                }
+                return;
+            }
+
+            // It's a GLB model - show Three.js, hide Sketchfab
+            sketchfabEmbed.style.display = 'none';
+            sketchfabEmbed.src = '';
+            if (renderer.domElement) {
+                renderer.domElement.style.display = 'block';
+            }
+
             const url = MODEL_URLS[modelKey];
             if (!url) return;
 
@@ -516,7 +655,6 @@
                     controls.update();
                 },
                 (progress) => {
-                    // Progress callback
                     const percent = (progress.loaded / progress.total * 100).toFixed(0);
                     console.log(`Loading: ${percent}%`);
                 },
@@ -533,7 +671,6 @@
         const mouse = { x: 0, y: 0 };
 
         function onMouseMove(event) {
-            // Normalize mouse position
             mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
             mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
         }
@@ -574,7 +711,7 @@
         function animate() {
             requestAnimationFrame(animate);
 
-            // Mouse following
+            // Mouse following with smooth easing
             if (isFollowMouse && currentModel) {
                 targetRotation.x = mouse.y * 0.5;
                 targetRotation.y = mouse.x * 0.8;
