@@ -472,17 +472,16 @@
             justify-content: center;
             align-items: center;
             position: relative;
-            min-height: auto;
-            padding: 0;
-            margin-bottom: -10px;
+            padding: 0 0 var(--spacing-lg) 0;
+            margin: 0;
         }
 
         #canvas-container {
             position: relative;
             width: 100%;
             max-width: 700px;
-            height: 50vh;
-            min-height: 400px;
+            height: 45vh;
+            min-height: 350px;
             border-radius: var(--border-radius-xl);
             overflow: hidden;
             background: rgba(26, 26, 26, 0.8);
@@ -581,17 +580,19 @@
             grid-area: footer;
             display: flex;
             gap: var(--spacing-lg);
-            padding: var(--spacing-sm) var(--spacing-lg);
+            padding: var(--spacing-md) var(--spacing-xl);
             background: rgba(30, 30, 30, 0.9);
             border: 1px solid var(--dark-border);
             border-radius: 50px;
             backdrop-filter: blur(20px);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-            margin: -50px auto 0;
+            margin: 0 auto;
             width: fit-content;
             animation: instructionsSlideUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) 0.5s both;
             justify-content: center;
             flex-wrap: wrap;
+            position: relative;
+            z-index: 10;
         }
 
         /* ============================================================
@@ -765,24 +766,6 @@
             }
         }
 
-        .instructions {
-            grid-area: footer;
-            display: flex;
-            gap: var(--spacing-lg);
-            padding: var(--spacing-sm) var(--spacing-lg);
-            background: rgba(30, 30, 30, 0.9);
-            border: 1px solid var(--dark-border);
-            border-radius: 50px;
-            backdrop-filter: blur(20px);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-            margin: 0 auto;
-            width: fit-content;
-            animation: instructionsSlideUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) 0.5s both;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-top: -10px;
-        }
-
         @keyframes instructionsSlideUp {
             from {
                 opacity: 0;
@@ -793,24 +776,32 @@
                 transform: translateY(0);
             }
         }
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-xs);
-            font-size: 12px;
-            font-weight: 500;
-            color: var(--text-secondary);
-        }
 
-        .instruction-icon {
-            width: 28px;
-            height: 28px;
+        .instruction-item {
             display: flex;
             align-items: center;
             justify-content: center;
+            gap: var(--spacing-sm);
             background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(251, 191, 36, 0.2));
-            border-radius: 10px;
-            font-size: 12px;
+            border-radius: 12px;
+            font-size: 13px;
             border: 1px solid var(--dark-border);
+            padding: var(--spacing-sm) var(--spacing-md);
+            color: var(--text-primary);
+            font-weight: 500;
+            white-space: nowrap;
+            transition: all var(--transition-normal);
+        }
+
+        .instruction-item:hover {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.3), rgba(251, 191, 36, 0.3));
+            border-color: var(--red-primary);
+            transform: translateY(-2px);
+        }
+
+        .instruction-icon {
+            font-size: 16px;
+            line-height: 1;
         }
 
         /* ============================================================
@@ -914,12 +905,12 @@
 
             .instruction-item {
                 font-size: 11px;
+                padding: var(--spacing-xs) var(--spacing-sm);
+                gap: 6px;
             }
 
             .instruction-icon {
-                width: 24px;
-                height: 24px;
-                font-size: 10px;
+                font-size: 14px;
             }
         }
 
