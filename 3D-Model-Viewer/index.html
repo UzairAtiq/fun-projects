@@ -737,14 +737,17 @@
 </head>
 <body>
     <div class="page-wrapper">
-        <!-- Header with Controls -->
+        <!-- Header with Title -->
         <header class="controls-header slide-down" role="banner">
             <div class="logo">
-                <span>3D Viewer</span>
+                <span>3D Nexus</span>
             </div>
+        </header>
 
+        <!-- Controls Section (Below Header) -->
+        <section class="controls-section" role="navigation">
             <div class="control-group">
-                <label for="modelSelector" class="control-label">Model</label>
+                <label for="modelSelector" class="control-label">Select Model</label>
                 <select id="modelSelector" class="model-selector" aria-label="Select 3D Model">
                     <option value="duck">Duck</option>
                     <option value="helmet">Damaged Helmet</option>
@@ -764,45 +767,18 @@
                     <span class="toggle-slider"></span>
                 </label>
             </div>
-        </header>
+        </section>
 
-        <!-- Left Sidebar - Cool Facts -->
-        <aside class="sidebar sidebar-left" role="complementary" aria-label="Cool Facts">
-            <h2 class="sidebar-title">Cool Facts</h2>
-            
-            <div class="fact-item">
-                <span class="fact-number">1</span>
-                <p class="fact-text">The first computer bug was an actual moth found in a Harvard Mark II computer in 1947!</p>
+        <!-- Left Sidebar - Image Gallery -->
+        <aside class="sidebar sidebar-left" role="complementary" aria-label="Image Gallery Left">
+            <div class="image-frame">
+                <img src="images/image1.jpg" alt="Anime Character 1" class="gallery-image" onerror="this.src='https://via.placeholder.com/300x400/1a1a1a/ef4444?text=Image+1'">
             </div>
-
-            <div class="fact-item">
-                <span class="fact-number">2</span>
-                <p class="fact-text">Python was named after Monty Python's Flying Circus, not the snake. Guido van Rossum wanted a short, unique name.</p>
+            <div class="image-frame">
+                <img src="images/image2.jpg" alt="Anime Character 2" class="gallery-image" onerror="this.src='https://via.placeholder.com/300x400/1a1a1a/fbbf24?text=Image+2'">
             </div>
-
-            <div class="fact-item">
-                <span class="fact-number">3</span>
-                <p class="fact-text">The original name of Windows was "Interface Manager" until it was changed just before release.</p>
-            </div>
-
-            <div class="fact-item">
-                <span class="fact-number">4</span>
-                <p class="fact-text">The average person blinks 15-20 times per minute, but only 7 times per minute when using a computer!</p>
-            </div>
-
-            <div class="fact-item">
-                <span class="fact-number">5</span>
-                <p class="fact-text">The first 1GB hard drive was announced in 1980 and weighed over 500 pounds with a price tag of $40,000!</p>
-            </div>
-
-            <div class="fact-item">
-                <span class="fact-number">6</span>
-                <p class="fact-text">Email existed before the World Wide Web. Ray Tomlinson sent the first email in 1971, while the Web was born in 1989.</p>
-            </div>
-
-            <div class="fact-item">
-                <span class="fact-number">7</span>
-                <p class="fact-text">There are more than 700 programming languages in existence, but most programmers only know a handful!</p>
+            <div class="image-frame">
+                <img src="images/image3.jpg" alt="Anime Character 3" class="gallery-image" onerror="this.src='https://via.placeholder.com/300x400/1a1a1a/ef4444?text=Image+3'">
             </div>
         </aside>
 
@@ -827,38 +803,16 @@
             </div>
         </main>
 
-        <!-- Right Sidebar - Anime Quotes -->
-        <aside class="sidebar sidebar-right" role="complementary" aria-label="Anime Quotes">
-            <h2 class="sidebar-title">Anime Quotes</h2>
-            
-            <div class="quote-item">
-                <p class="quote-text">If you don't take risks, you can't create a future!</p>
-                <span class="quote-author">Monkey D. Luffy, One Piece</span>
+        <!-- Right Sidebar - Image Gallery -->
+        <aside class="sidebar sidebar-right" role="complementary" aria-label="Image Gallery Right">
+            <div class="image-frame">
+                <img src="https://i.imgur.com/7NmK9Xt.jpeg" alt="Anime Character 4" class="gallery-image">
             </div>
-
-            <div class="quote-item">
-                <p class="quote-text">It's not the face that makes someone a monster, it's the choices they make with their lives.</p>
-                <span class="quote-author">Naruto Uzumaki, Naruto</span>
+            <div class="image-frame">
+                <img src="https://i.imgur.com/5JqL8Zm.jpeg" alt="Anime Character 5" class="gallery-image">
             </div>
-
-            <div class="quote-item">
-                <p class="quote-text">The world isn't perfect, but it's there for us trying the best it can. That's what makes it so beautiful.</p>
-                <span class="quote-author">Roy Mustang, Fullmetal Alchemist</span>
-            </div>
-
-            <div class="quote-item">
-                <p class="quote-text">Believe in yourself. Not in the you who believes in me. Believe in the me who believes in you!</p>
-                <span class="quote-author">Kamina, Gurren Lagann</span>
-            </div>
-
-            <div class="quote-item">
-                <p class="quote-text">Even if we forget the faces of our friends, we will never forget the bonds that were carved into our souls.</p>
-                <span class="quote-author">Otonashi Yuzuru, Angel Beats!</span>
-            </div>
-
-            <div class="quote-item">
-                <p class="quote-text">Power comes in response to a need, not a desire. You have to create that need.</p>
-                <span class="quote-author">Goku, Dragon Ball Z</span>
+            <div class="image-frame">
+                <img src="https://i.imgur.com/3KpM7Yn.jpeg" alt="Anime Character 6" class="gallery-image">
             </div>
         </aside>
 
