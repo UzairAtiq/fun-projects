@@ -586,6 +586,104 @@
             flex-wrap: wrap;
         }
 
+        /* ============================================================
+           RANDOM QUOTE DISPLAY
+           ============================================================ */
+        .quote-display {
+            position: fixed;
+            top: 180px;
+            left: 50%;
+            transform: translateX(-50%);
+            max-width: 700px;
+            width: 90%;
+            background: linear-gradient(135deg, rgba(30, 30, 30, 0.95), rgba(20, 20, 20, 0.95));
+            border: 2px solid;
+            border-image: linear-gradient(135deg, var(--red-primary), var(--yellow-primary)) 1;
+            border-radius: var(--border-radius-lg);
+            padding: var(--spacing-xl);
+            backdrop-filter: blur(30px);
+            box-shadow: 
+                0 12px 40px rgba(0, 0, 0, 0.8),
+                0 0 60px var(--red-glow),
+                inset 0 0 40px rgba(239, 68, 68, 0.1);
+            z-index: 85;
+            animation: fadeInDown 0.6s ease-out;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        .quote-display::before {
+            content: '"';
+            position: absolute;
+            top: -20px;
+            left: 20px;
+            font-size: 5rem;
+            background: linear-gradient(135deg, var(--red-primary), var(--yellow-primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-family: Georgia, serif;
+            opacity: 0.3;
+        }
+
+        .quote-text-display {
+            font-size: 16px;
+            line-height: 1.8;
+            color: var(--text-primary);
+            font-style: italic;
+            text-align: center;
+            margin-bottom: var(--spacing-lg);
+            position: relative;
+            z-index: 1;
+        }
+
+        .quote-refresh-btn {
+            display: block;
+            margin: 0 auto;
+            padding: var(--spacing-sm) var(--spacing-xl);
+            background: linear-gradient(135deg, var(--red-primary), var(--yellow-primary));
+            border: none;
+            border-radius: 50px;
+            color: #000;
+            font-weight: 700;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            cursor: pointer;
+            transition: all var(--transition-normal);
+            box-shadow: 0 4px 15px var(--red-glow);
+        }
+
+        .quote-refresh-btn:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 8px 25px var(--red-glow), 0 0 40px var(--yellow-glow);
+        }
+
+        .quote-refresh-btn:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        /* Hide quote display on mobile */
+        @media (max-width: 767px) {
+            .quote-display {
+                max-width: 85%;
+                top: 160px;
+                padding: var(--spacing-lg);
+            }
+
+            .quote-text-display {
+                font-size: 14px;
+            }
+        }
+
         @keyframes instructionsSlideUp {
             from {
                 opacity: 0;
@@ -831,6 +929,14 @@
                 <span>Shift + Drag to pan</span>
             </div>
         </footer>
+
+        <!-- Random Quote Display -->
+        <div class="quote-display">
+            <p class="quote-text-display" id="randomQuote">Loading quote...</p>
+            <button class="quote-refresh-btn" id="refreshQuoteBtn" onclick="displayRandomQuote()">
+                ✨ New Quote
+            </button>
+        </div>
     </div>
 
     <!-- Three.js Scripts -->
@@ -847,6 +953,36 @@
         import * as THREE from 'three';
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
         import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+        // ============================================================
+        // RANDOM QUOTES ARRAY - ADD YOUR QUOTES HERE
+        // ============================================================
+        const quotes = [
+            "Add your first quote here",
+            "Add your second quote here",
+            "Add your third quote here",
+            "Add more quotes as needed...",
+            // Keep adding more quotes in this format
+        ];
+
+        // Function to display random quote
+        function displayRandomQuote() {
+            const randomIndex = Math.floor(Math.random() * quotes.length);
+            const quoteElement = document.getElementById('randomQuote');
+            quoteElement.style.opacity = '0';
+            
+            setTimeout(() => {
+                quoteElement.textContent = quotes[randomIndex];
+                quoteElement.style.transition = 'opacity 0.5s ease';
+                quoteElement.style.opacity = '1';
+            }, 200);
+        }
+
+        // Display random quote on page load
+        window.addEventListener('DOMContentLoaded', displayRandomQuote);
+        
+        // Make function available globally for button onclick
+        window.displayRandomQuote = displayRandomQuote;
 
         // ============================================================
         // MODEL URLs
