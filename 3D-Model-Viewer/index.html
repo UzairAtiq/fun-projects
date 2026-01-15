@@ -1039,22 +1039,31 @@
             </button>
         </div>
 
-        <!-- Music Player -->
-        <div class="music-player">
-            <span class="music-icon">🎵</span>
-            <iframe 
-                src="https://open.spotify.com/embed/playlist/37i9dQZF1DWZqd5JICZI0u?utm_source=generator&theme=0" 
-                allowfullscreen="" 
-                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
-                loading="lazy">
-            </iframe>
-        </div>
-
         <!-- Background Auto-Play Music -->
-        <audio id="backgroundMusic" autoplay loop volume="0.3">
+        <audio id="backgroundMusic" loop>
             <source src="music/Short Meditation Music - 3 Minute Relaxation, Calming.webm" type="audio/webm">
             Your browser does not support the audio element.
         </audio>
+        
+        <!-- Music Control Button -->
+        <button id="musicToggle" style="
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 10000;
+            background: var(--red-primary);
+            border: 2px solid var(--red-secondary);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            box-shadow: 0 4px 15px var(--red-glow);
+            transition: all 0.3s ease;
+        ">
+            🔊 Play Music
+        </button>
     </div>
 
     <!-- Three.js Scripts -->
@@ -1408,6 +1417,38 @@
             controls.update();
             renderer.render(scene, camera);
         }
+
+        // ============================================================
+        // Music Control
+        // ============================================================
+        const bgMusic = document.getElementById('backgroundMusic');
+        const musicToggle = document.getElementById('musicToggle');
+        let isPlaying = false;
+
+        bgMusic.volume = 0.3;
+
+        musicToggle.addEventListener('click', () => {
+            if (isPlaying) {
+                bgMusic.pause();
+                musicToggle.innerHTML = '🔊 Play Music';
+                musicToggle.style.background = 'var(--red-primary)';
+            } else {
+                bgMusic.play().catch(e => console.log('Audio play failed:', e));
+                musicToggle.innerHTML = '🔇 Pause Music';
+                musicToggle.style.background = 'var(--yellow-primary)';
+            }
+            isPlaying = !isPlaying;
+        });
+
+        // Try to autoplay (may be blocked by browser)
+        bgMusic.play().then(() => {
+            isPlaying = true;
+            musicToggle.innerHTML = '🔇 Pause Music';
+            musicToggle.style.background = 'var(--yellow-primary)';
+        }).catch(() => {
+            // Autoplay was prevented, user needs to click button
+            console.log('Autoplay prevented. Click the music button to play.');
+        });
 
         // ============================================================
         // Initialize
