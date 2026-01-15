@@ -1138,6 +1138,31 @@
         window.displayRandomQuote = displayRandomQuote;
 
         // ============================================================
+        // BACKGROUND MUSIC AUTO-PLAY
+        // ============================================================
+        const backgroundMusic = document.getElementById('backgroundMusic');
+        
+        // Try to play immediately
+        if (backgroundMusic) {
+            backgroundMusic.volume = 0.3;
+            backgroundMusic.play().catch(error => {
+                console.log('Autoplay blocked, waiting for user interaction...');
+                
+                // Play on first user interaction
+                const playOnInteraction = () => {
+                    backgroundMusic.play().catch(e => console.log('Could not play audio:', e));
+                    document.removeEventListener('click', playOnInteraction);
+                    document.removeEventListener('keydown', playOnInteraction);
+                    document.removeEventListener('touchstart', playOnInteraction);
+                };
+                
+                document.addEventListener('click', playOnInteraction);
+                document.addEventListener('keydown', playOnInteraction);
+                document.addEventListener('touchstart', playOnInteraction);
+            });
+        }
+
+        // ============================================================
         // MODEL URLs
         // ============================================================
         const MODEL_URLS = {
