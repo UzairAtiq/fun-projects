@@ -94,10 +94,13 @@
                 "header"
                 "controls"
                 "main"
-                "footer";
+                "footer"
+                "quote"
+                "music";
             min-height: 100vh;
             position: relative;
             z-index: 1;
+            row-gap: 0;
         }
 
         /* Desktop layout with sidebars */
@@ -108,8 +111,11 @@
                     "header header header"
                     "controls controls controls"
                     "sidebar-left main sidebar-right"
-                    "footer footer footer";
-                gap: var(--spacing-lg);
+                    "footer footer footer"
+                    "quote quote quote"
+                    "music music music";
+                row-gap: 0;
+                column-gap: var(--spacing-lg);
                 padding: 0 var(--spacing-lg);
             }
         }
@@ -466,16 +472,17 @@
             justify-content: center;
             align-items: center;
             position: relative;
-            min-height: calc(100vh - 100px);
-            padding: var(--spacing-lg) 0;
+            min-height: auto;
+            padding: 0;
+            margin-bottom: -10px;
         }
 
         #canvas-container {
             position: relative;
             width: 100%;
-            max-width: 1000px;
-            height: 70vh;
-            min-height: 500px;
+            max-width: 700px;
+            height: 50vh;
+            min-height: 400px;
             border-radius: var(--border-radius-xl);
             overflow: hidden;
             background: rgba(26, 26, 26, 0.8);
@@ -486,6 +493,7 @@
                 inset 0 0 80px rgba(0, 0, 0, 0.5);
             backdrop-filter: blur(20px);
             animation: containerFloat 8s ease-in-out infinite;
+            margin: 0;
         }
 
         @keyframes containerFloat {
@@ -573,13 +581,13 @@
             grid-area: footer;
             display: flex;
             gap: var(--spacing-lg);
-            padding: var(--spacing-md) var(--spacing-lg);
+            padding: var(--spacing-sm) var(--spacing-lg);
             background: rgba(30, 30, 30, 0.9);
             border: 1px solid var(--dark-border);
             border-radius: 50px;
             backdrop-filter: blur(20px);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-            margin: var(--spacing-lg) auto;
+            margin: -50px auto 0;
             width: fit-content;
             animation: instructionsSlideUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) 0.5s both;
             justify-content: center;
@@ -587,101 +595,192 @@
         }
 
         /* ============================================================
-           RANDOM QUOTE DISPLAY
+           RANDOM QUOTE DISPLAY - ONE UI INSPIRED
            ============================================================ */
         .quote-display {
-            position: fixed;
-            top: 180px;
-            left: 50%;
-            transform: translateX(-50%);
-            max-width: 700px;
-            width: 90%;
-            background: linear-gradient(135deg, rgba(30, 30, 30, 0.95), rgba(20, 20, 20, 0.95));
-            border: 2px solid;
-            border-image: linear-gradient(135deg, var(--red-primary), var(--yellow-primary)) 1;
-            border-radius: var(--border-radius-lg);
-            padding: var(--spacing-xl);
-            backdrop-filter: blur(30px);
+            grid-area: quote;
+            max-width: 680px;
+            width: 100%;
+            margin: 10px auto 0 auto;
+            background: rgba(28, 28, 30, 0.92);
+            border-radius: 28px;
+            padding: 28px 32px;
+            backdrop-filter: blur(40px) saturate(180%);
             box-shadow: 
-                0 12px 40px rgba(0, 0, 0, 0.8),
-                0 0 60px var(--red-glow),
-                inset 0 0 40px rgba(239, 68, 68, 0.1);
-            z-index: 85;
-            animation: fadeInDown 0.6s ease-out;
+                0 8px 32px rgba(0, 0, 0, 0.4),
+                0 1px 2px rgba(0, 0, 0, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            animation: slideUpGentle 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            border: 0.5px solid rgba(255, 255, 255, 0.08);
         }
 
-        @keyframes fadeInDown {
+        @keyframes slideUpGentle {
             from {
                 opacity: 0;
-                transform: translateX(-50%) translateY(-30px);
+                transform: translateY(20px);
             }
             to {
                 opacity: 1;
-                transform: translateX(-50%) translateY(0);
+                transform: translateY(0);
             }
         }
 
         .quote-display::before {
-            content: '"';
+            content: '';
             position: absolute;
-            top: -20px;
-            left: 20px;
-            font-size: 5rem;
-            background: linear-gradient(135deg, var(--red-primary), var(--yellow-primary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-family: Georgia, serif;
-            opacity: 0.3;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, 
+                transparent, 
+                var(--red-primary) 20%, 
+                var(--yellow-primary) 80%, 
+                transparent);
+            border-radius: 28px 28px 0 0;
+            opacity: 0.7;
         }
 
         .quote-text-display {
-            font-size: 16px;
-            line-height: 1.8;
-            color: var(--text-primary);
-            font-style: italic;
-            text-align: center;
-            margin-bottom: var(--spacing-lg);
+            font-size: 17px;
+            line-height: 1.65;
+            color: rgba(255, 255, 255, 0.95);
+            font-weight: 400;
+            text-align: left;
+            margin-bottom: 20px;
             position: relative;
             z-index: 1;
+            letter-spacing: 0.2px;
         }
 
         .quote-refresh-btn {
-            display: block;
-            margin: 0 auto;
-            padding: var(--spacing-sm) var(--spacing-xl);
-            background: linear-gradient(135deg, var(--red-primary), var(--yellow-primary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-left: auto;
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.1);
             border: none;
-            border-radius: 50px;
-            color: #000;
-            font-weight: 700;
+            border-radius: 16px;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 600;
             font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
             cursor: pointer;
-            transition: all var(--transition-normal);
-            box-shadow: 0 4px 15px var(--red-glow);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            backdrop-filter: blur(10px);
+            width: fit-content;
         }
 
         .quote-refresh-btn:hover {
-            transform: translateY(-2px) scale(1.05);
-            box-shadow: 0 8px 25px var(--red-glow), 0 0 40px var(--yellow-glow);
+            background: rgba(255, 255, 255, 0.15);
+            transform: scale(1.02);
         }
 
         .quote-refresh-btn:active {
-            transform: translateY(0) scale(0.98);
+            transform: scale(0.97);
+            background: rgba(255, 255, 255, 0.12);
         }
 
-        /* Hide quote display on mobile */
+        /* Mobile adjustments for quote display */
         @media (max-width: 767px) {
             .quote-display {
-                max-width: 85%;
-                top: 160px;
-                padding: var(--spacing-lg);
+                width: calc(100% - 32px);
+                margin: 0 auto;
+                padding: 20px 24px;
+                border-radius: 24px;
             }
 
             .quote-text-display {
-                font-size: 14px;
+                font-size: 15px;
+                line-height: 1.6;
+                margin-bottom: 16px;
             }
+
+            .quote-refresh-btn {
+                padding: 10px 20px;
+                font-size: 13px;
+            }
+        }
+
+        /* ============================================================
+           MUSIC PLAYER
+           ============================================================ */
+        .music-player {
+            grid-area: music;
+            max-width: 680px;
+            width: 100%;
+            margin: 0 auto;
+            background: rgba(28, 28, 30, 0.92);
+            border-radius: 28px;
+            padding: 20px 28px;
+            backdrop-filter: blur(40px) saturate(180%);
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.4),
+                0 1px 2px rgba(0, 0, 0, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            border: 0.5px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .music-player::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, 
+                transparent, 
+                var(--yellow-primary) 20%, 
+                var(--red-primary) 80%, 
+                transparent);
+            border-radius: 28px 28px 0 0;
+            opacity: 0.7;
+        }
+
+        .music-icon {
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .music-player iframe {
+            flex: 1;
+            height: 80px;
+            border: none;
+            border-radius: 12px;
+        }
+
+        @media (max-width: 767px) {
+            .music-player {
+                width: calc(100% - 32px);
+                padding: 16px 20px;
+                flex-direction: column;
+            }
+
+            .music-player iframe {
+                width: 100%;
+            }
+        }
+
+        .instructions {
+            grid-area: footer;
+            display: flex;
+            gap: var(--spacing-lg);
+            padding: var(--spacing-sm) var(--spacing-lg);
+            background: rgba(30, 30, 30, 0.9);
+            border: 1px solid var(--dark-border);
+            border-radius: 50px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            margin: 0 auto;
+            width: fit-content;
+            animation: instructionsSlideUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) 0.5s both;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: -10px;
         }
 
         @keyframes instructionsSlideUp {
@@ -694,8 +793,6 @@
                 transform: translateY(0);
             }
         }
-
-        .instruction-item {
             display: flex;
             align-items: center;
             gap: var(--spacing-xs);
@@ -801,9 +898,9 @@
             }
 
             #canvas-container {
-                width: 95vw;
-                height: 50vh;
-                min-height: 400px;
+                width: 90vw;
+                height: 45vh;
+                min-height: 350px;
                 border-radius: var(--border-radius-lg);
             }
 
@@ -934,8 +1031,20 @@
         <div class="quote-display">
             <p class="quote-text-display" id="randomQuote">Loading quote...</p>
             <button class="quote-refresh-btn" id="refreshQuoteBtn" onclick="displayRandomQuote()">
-                ✨ New Quote
+                <span>↻</span>
+                <span>Refresh</span>
             </button>
+        </div>
+
+        <!-- Music Player -->
+        <div class="music-player">
+            <span class="music-icon">🎵</span>
+            <iframe 
+                src="https://open.spotify.com/embed/playlist/37i9dQZF1DWZqd5JICZI0u?utm_source=generator&theme=0" 
+                allowfullscreen="" 
+                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
+                loading="lazy">
+            </iframe>
         </div>
     </div>
 
@@ -958,11 +1067,46 @@
         // RANDOM QUOTES ARRAY - ADD YOUR QUOTES HERE
         // ============================================================
         const quotes = [
-            "Add your first quote here",
-            "Add your second quote here",
-            "Add your third quote here",
-            "Add more quotes as needed...",
-            // Keep adding more quotes in this format
+           "Your breath on my neck is already undoing me.",
+    "I want to feel your pulse against my lips.",
+    "Slide your fingers exactly where I&rsquo;m aching.",
+    "You taste like every bad decision I want to repeat.",
+    "Keep looking at me like that and clothes stop being optional.",
+    "My skin remembers every place you haven&rsquo;t touched yet.",
+    "Whisper what you want &mdash; I like hearing you get specific.",
+    "Your grip just turned my thoughts into static.",
+    "I&rsquo;m already wet just imagining your mouth there.",
+    "Bite my lip again. Harder this time.",
+    "Let me count how many ways you can make me tremble.",
+    "Your hands feel like they were made for my curves.",
+    "I need your weight pressing me into the mattress.",
+    "Slow&hellip; tease me until I&rsquo;m begging with my eyes.",
+    "Every time you exhale near my ear I lose another rule.",
+    "Unlock me with that low, dangerous voice of yours.",
+    "My thighs are already shaking and you&rsquo;ve barely started.",
+    "Trace my spine with your tongue &mdash; see what happens.",
+    "I want to feel you throb when I say your name.",
+    "You&rsquo;re not leaving this bed until I&rsquo;m boneless.",
+    "Pull my hair just enough to remind me who&rsquo;s in control.",
+    "Your scent is currently ruining my concentration.",
+    "Let me ride that edge with you until we both break.",
+    "I&rsquo;m dripping just thinking about your tongue circling.",
+    "Mark me somewhere only we&rsquo;ll know about later.",
+    "Spread me open and look at what you do to me.",
+    "Your fingers inside me feel like a promise.",
+    "Kiss me like you&rsquo;re trying to steal my soul.",
+    "I want to feel every inch of you stretch me slow.",
+    "You&rsquo;re so hard it&rsquo;s almost unfair.",
+    "Grind against me until we&rsquo;re both shaking.",
+    "My nipples miss your teeth already.",
+    "Tell me the filthy thing you&rsquo;re imagining right now.",
+    "I&rsquo;m going to milk every last drop from you tonight.",
+    "Your tongue should come with a warning label.",
+    "Pin my wrists and take what you&rsquo;ve been craving.",
+    "I love the sound you make when you&rsquo;re trying not to come.",
+    "Slide in deep and stay there &mdash; just feel me clench.",
+    "You&rsquo;re dripping down my thighs and we haven&rsquo;t even finished foreplay.",
+    "Ruin me slowly&hellip; I want to feel it for days."
         ];
 
         // Function to display random quote
