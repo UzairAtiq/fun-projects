@@ -36,11 +36,17 @@ import time
 
 
 class FaceShapeDetector:
-    """Handles face detection and shape classification logic"""
+    """
+    Advanced face shape detection with normalization, temporal stabilization,
+    and confidence scoring
+    """
     
-    def __init__(self):
+    def __init__(self, debug_mode=False):
         # Initialize MediaPipe Face Mesh
         self.mp_face_mesh = mp.solutions.face_mesh
+        self.mp_drawing = mp.solutions.drawing_utils
+        self.mp_drawing_styles = mp.solutions.drawing_styles
+        
         self.face_mesh = self.mp_face_mesh.FaceMesh(
             static_image_mode=False,
             max_num_faces=1,
@@ -48,29 +54,292 @@ class FaceShapeDetector:
             min_tracking_confidence=0.5
         )
         
-        # Key landmark indices for face measurements
-        # These are specific points on the face mesh
-        self.FOREHEAD_TOP = 10
-        self.CHIN_BOTTOM = 152
-        self.LEFT_CHEEK = 234
-        self.RIGHT_CHEEK = 454
-        self.LEFT_JAW = 172
-        self.RIGHT_JAW = 397
-        self.LEFT_FOREHEAD = 21
-        self.RIGHT_FOREHEAD = 251
-        self.CHIN_TIP = 152
-        self.LEFT_CHIN = 206
-        self.RIGHT_CHIN = 426
+        # PRECISE MediaPipe landmark indices (based on 468-point mesh)
+        self.LANDMARKS = {
+            'face_top': 10,
+            'chin': 152,
+            'jaw_left': 234,
+            'jaw_right': 454,
+            'cheekbone_left': 93,
+            'cheekbone_right': 323,
+            'forehead_left': 103,
+            'forehead_right': 332,
+            'left_eye': 33,
+            'right_eye': 263,
+            'nose_bridge': 168,
+            # Additional jaw angle points
+            'jaw_left_angle': 172,
+            'jaw_right_angle': 397,
+            'chin_left': 206,
+            'chin_right': 426,
+        }
         
+        # Temporal stabilization: rolling buffer for 60 frames (~2 seconds at 30fps)
+        self.BUFFER_SIZE = 60
+        self.measurement_buffer = []
+        self.shape_buffer = []
+        
+        # Debug mode
+        self.debug_mode = debug_mode
+        self.debug_info = {}
+        
+    def normalize_landmarks(self, landmarks, h, w):
+        """
+        Normalize face landmarks by:
+        1. Translating face center to (0,0)
+        2. Scaling by inter-pupillary distance (IPD)
+        
+        This removes camera distance bias
+        """
+        # Get eye positions for IPD calculation
+        left_eye = landmarks[self.LANDMARKS['left_eye']]
+        right_eye = landmarks[self.LANDMARKS['right_eye']]
+        
+        # Calculate IPD (inter-pupillary distance)
+        ipd = np.sqrt((right_eye.x - left_eye.x)**2 + (right_eye.y - left_eye.y)**2)
+        
+        # Calculate face center (midpoint between eyes)
+        center_x = (left_eye.x + right_eye.x) / 2
+        center_y = (left_eye.y + right_eye.y) / 2
+        
+        # Normalize all landmarks
+        normalized = []
+        for landmark in landmarks:
+            # Translate to center
+            norm_x = (landmark.x - center_x) / ipd if ipd > 0 else 0
+            norm_y = (landmark.y - center_y) / ipd if ipd > 0 else 0
+            
+            # Convert to pixel coordinates for measurements
+            pixel_x = int(norm_x * w + w/2)
+            pixel_y = int(norm_y * h + h/2)
+            normalized.append((pixel_x, pixel_y, norm_x, norm_y))
+        
+        return normalized
+    
     def calculate_distance(self, point1, point2):
-        """Calculate Euclidean distance between two points"""
-        return np.sqrt((point1[0] - point2[0])**2 + (point1[1] - point2[1])**2)
+        """Calculate Euclidean distance between two normalized points"""
+        return np.sqrt((point1[2] - point2[2])**2 + (point1[3] - point2[3])**2)
+    
+    def calculate_angle(self, p1, p2, p3):
+        """
+        Calculate angle at p2 formed by p1-p2-p3
+        Returns angle in degrees
+        """
+        # Vectors
+        v1 = np.array([p1[2] - p2[2], p1[3] - p2[3]])
+        v2 = np.array([p3[2] - p2[2], p3[3] - p2[3]])
+        
+        # Angle calculation
+        cos_angle = np.dot(v1, v2) / (np.linalg.norm(v1) * np.linalg.norm(v2) + 1e-6)
+        angle = np.arccos(np.clip(cos_angle, -1.0, 1.0))
+        
+        return np.degrees(angle)
+    
+    def calculate_comprehensive_measurements(self, normalized_landmarks):
+        """
+        Calculate all required measurements:
+        - Vertical: face height
+        - Horizontal: jaw, cheekbone, forehead widths
+        - Angles: jaw angles, chin curvature
+        """
+        L = self.LANDMARKS
+        
+        # Get key points
+        face_top = normalized_landmarks[L['face_top']]
+        chin = normalized_landmarks[L['chin']]
+        jaw_left = normalized_landmarks[L['jaw_left']]
+        jaw_right = normalized_landmarks[L['jaw_right']]
+        cheek_left = normalized_landmarks[L['cheekbone_left']]
+        cheek_right = normalized_landmarks[L['cheekbone_right']]
+        forehead_left = normalized_landmarks[L['forehead_left']]
+        forehead_right = normalized_landmarks[L['forehead_right']]
+        jaw_angle_left = normalized_landmarks[L['jaw_left_angle']]
+        jaw_angle_right = normalized_landmarks[L['jaw_right_angle']]
+        
+        # VERTICAL MEASUREMENTS
+        face_height = self.calculate_distance(face_top, chin)
+        
+        # HORIZONTAL MEASUREMENTS
+        jaw_width = self.calculate_distance(jaw_left, jaw_right)
+        cheekbone_width = self.calculate_distance(cheek_left, cheek_right)
+        forehead_width = self.calculate_distance(forehead_left, forehead_right)
+        
+        # ANGLE MEASUREMENTS
+        # Left jaw angle: angle at jaw corner
+        jaw_angle_left_deg = self.calculate_angle(cheek_left, jaw_angle_left, chin)
+        # Right jaw angle
+        jaw_angle_right_deg = self.calculate_angle(cheek_right, jaw_angle_right, chin)
+        # Average jaw angle
+        avg_jaw_angle = (jaw_angle_left_deg + jaw_angle_right_deg) / 2
+        
+        # Chin curvature (lower angle = sharper chin)
+        chin_curvature = self.calculate_angle(jaw_left, chin, jaw_right)
+        
+        measurements = {
+            'face_height': face_height,
+            'jaw_width': jaw_width,
+            'cheekbone_width': cheekbone_width,
+            'forehead_width': forehead_width,
+            'jaw_angle': avg_jaw_angle,
+            'chin_curvature': chin_curvature,
+        }
+        
+        return measurements
+    
+    def calculate_ratios(self, measurements):
+        """
+        Calculate stable ratios from measurements
+        """
+        m = measurements
+        cheek = m['cheekbone_width']
+        
+        if cheek == 0:
+            return None
+        
+        ratios = {
+            'face_aspect': m['face_height'] / cheek,
+            'jaw_ratio': m['jaw_width'] / cheek,
+            'forehead_ratio': m['forehead_width'] / cheek,
+            'taper_ratio': m['forehead_width'] / m['jaw_width'] if m['jaw_width'] > 0 else 0,
+            'jaw_angle': m['jaw_angle'],
+            'chin_curvature': m['chin_curvature'],
+        }
+        
+        return ratios
+    
+    def classify_with_confidence(self, ratios):
+        """
+        Classify face shape with confidence scoring
+        Returns: (shape, confidence, scores_dict)
+        """
+        if ratios is None:
+            return "UNKNOWN", 0.0, {}
+        
+        # Initialize scores for each shape
+        scores = {
+            'OVAL': 0.0,
+            'ROUND': 0.0,
+            'SQUARE': 0.0,
+            'HEART': 0.0,
+            'DIAMOND': 0.0,
+        }
+        
+        r = ratios
+        
+        # OVAL SCORING
+        # Balanced proportions, face length > width, gently rounded
+        if 1.45 <= r['face_aspect'] <= 1.75:
+            scores['OVAL'] += 0.35
+        if 0.75 <= r['jaw_ratio'] <= 0.90:
+            scores['OVAL'] += 0.25
+        if 0.90 <= r['forehead_ratio'] <= 1.05:
+            scores['OVAL'] += 0.20
+        if 100 <= r['jaw_angle'] <= 130:
+            scores['OVAL'] += 0.20
+        
+        # ROUND SCORING
+        # Face aspect low, similar widths all around
+        if r['face_aspect'] < 1.25:
+            scores['ROUND'] += 0.35
+        if 0.85 <= r['jaw_ratio'] <= 1.00:
+            scores['ROUND'] += 0.25
+        if 0.85 <= r['forehead_ratio'] <= 1.00:
+            scores['ROUND'] += 0.20
+        if r['chin_curvature'] > 140:
+            scores['ROUND'] += 0.20
+        
+        # SQUARE SCORING
+        # Low aspect, wide jaw, sharp angles
+        if 1.20 <= r['face_aspect'] <= 1.35:
+            scores['SQUARE'] += 0.30
+        if r['jaw_ratio'] >= 0.95:
+            scores['SQUARE'] += 0.25
+        if 0.90 <= r['forehead_ratio'] <= 1.05:
+            scores['SQUARE'] += 0.20
+        if 85 <= r['jaw_angle'] <= 105:
+            scores['SQUARE'] += 0.25
+        
+        # HEART SCORING
+        # Wide forehead, narrow jaw, sharp chin
+        if r['forehead_ratio'] > 1.05:
+            scores['HEART'] += 0.30
+        if r['jaw_ratio'] < 0.85:
+            scores['HEART'] += 0.25
+        if r['taper_ratio'] > 1.15:
+            scores['HEART'] += 0.25
+        if r['chin_curvature'] < 120:
+            scores['HEART'] += 0.20
+        
+        # DIAMOND SCORING
+        # Cheekbones widest, narrow forehead AND jaw
+        if r['forehead_ratio'] < 0.92:
+            scores['DIAMOND'] += 0.25
+        if r['jaw_ratio'] < 0.85:
+            scores['DIAMOND'] += 0.25
+        if r['face_aspect'] >= 1.25:
+            scores['DIAMOND'] += 0.25
+        if 95 <= r['jaw_angle'] <= 115:
+            scores['DIAMOND'] += 0.25
+        
+        # Find best match
+        best_shape = max(scores, key=scores.get)
+        best_score = scores[best_shape]
+        
+        # Get runner-up
+        sorted_scores = sorted(scores.items(), key=lambda x: x[1], reverse=True)
+        runner_up_score = sorted_scores[1][1] if len(sorted_scores) > 1 else 0
+        
+        # Only return classification if confident (difference >= 0.15)
+        if best_score - runner_up_score >= 0.15 and best_score >= 0.70:
+            return best_shape, best_score, scores
+        else:
+            return "UNCLEAR", best_score, scores
+    
+    def temporal_stabilization(self, current_shape, current_confidence):
+        """
+        Use temporal buffer for stable results
+        Only update if shape is stable for >= 1.5 seconds
+        """
+        # Add to buffer
+        self.shape_buffer.append((current_shape, current_confidence))
+        
+        # Keep buffer size limited
+        if len(self.shape_buffer) > self.BUFFER_SIZE:
+            self.shape_buffer.pop(0)
+        
+        # Need at least 45 frames (1.5 seconds at 30fps)
+        if len(self.shape_buffer) < 45:
+            return None, 0.0
+        
+        # Majority voting on recent frames
+        recent_shapes = [s[0] for s in self.shape_buffer[-45:]]
+        recent_confidences = [s[1] for s in self.shape_buffer[-45:]]
+        
+        # Count occurrences
+        from collections import Counter
+        shape_counts = Counter(recent_shapes)
+        
+        # Get most common shape
+        most_common_shape, count = shape_counts.most_common(1)[0]
+        
+        # Calculate stability (what % of frames agree)
+        stability = count / len(recent_shapes)
+        
+        # Only return if stability >= 70% and average confidence >= 70%
+        avg_confidence = np.mean(recent_confidences)
+        
+        if stability >= 0.70 and avg_confidence >= 0.70:
+            return most_common_shape, avg_confidence
+        else:
+            return None, 0.0
     
     def detect_face_shape(self, frame):
         """
-        Detect face shape from a video frame
-        Returns: (face_shape, confidence, landmarks_image)
+        Main detection pipeline with full processing
+        Returns: (face_shape, confidence, annotated_frame)
         """
+        h, w, _ = frame.shape
+        
         # Convert BGR to RGB for MediaPipe
         rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         results = self.face_mesh.process(rgb_frame)
@@ -78,105 +347,81 @@ class FaceShapeDetector:
         if not results.multi_face_landmarks:
             return None, 0, frame
         
-        # Get the first face landmarks
-        face_landmarks = results.multi_face_landmarks[0]
-        h, w, _ = frame.shape
+        # Get landmarks
+        face_landmarks = results.multi_face_landmarks[0].landmark
         
-        # Extract key points
-        landmarks = []
-        for landmark in face_landmarks.landmark:
-            x = int(landmark.x * w)
-            y = int(landmark.y * h)
-            landmarks.append((x, y))
+        # Normalize landmarks
+        normalized_landmarks = self.normalize_landmarks(face_landmarks, h, w)
         
-        # Calculate facial measurements
-        face_length = self.calculate_distance(
-            landmarks[self.FOREHEAD_TOP],
-            landmarks[self.CHIN_BOTTOM]
-        )
-        
-        cheekbone_width = self.calculate_distance(
-            landmarks[self.LEFT_CHEEK],
-            landmarks[self.RIGHT_CHEEK]
-        )
-        
-        jaw_width = self.calculate_distance(
-            landmarks[self.LEFT_JAW],
-            landmarks[self.RIGHT_JAW]
-        )
-        
-        forehead_width = self.calculate_distance(
-            landmarks[self.LEFT_FOREHEAD],
-            landmarks[self.RIGHT_FOREHEAD]
-        )
-        
-        chin_width = self.calculate_distance(
-            landmarks[self.LEFT_CHIN],
-            landmarks[self.RIGHT_CHIN]
-        )
+        # Calculate measurements
+        measurements = self.calculate_comprehensive_measurements(normalized_landmarks)
         
         # Calculate ratios
-        face_ratio = face_length / cheekbone_width if cheekbone_width > 0 else 0
-        jaw_to_cheek = jaw_width / cheekbone_width if cheekbone_width > 0 else 0
-        forehead_to_cheek = forehead_width / cheekbone_width if cheekbone_width > 0 else 0
-        chin_to_cheek = chin_width / cheekbone_width if cheekbone_width > 0 else 0
+        ratios = self.calculate_ratios(measurements)
         
-        # Classify face shape based on ratios
-        face_shape = self.classify_shape(face_ratio, jaw_to_cheek, forehead_to_cheek, chin_to_cheek)
+        # Classify with confidence
+        instant_shape, instant_confidence, scores = self.classify_with_confidence(ratios)
         
-        # Draw landmarks for visualization (optional, can be toggled)
-        annotated_frame = frame.copy()
+        # Apply temporal stabilization
+        stable_shape, stable_confidence = self.temporal_stabilization(instant_shape, instant_confidence)
         
-        return face_shape, 0.85, annotated_frame
+        # Store debug info
+        if self.debug_mode:
+            self.debug_info = {
+                'measurements': measurements,
+                'ratios': ratios,
+                'instant_shape': instant_shape,
+                'instant_confidence': instant_confidence,
+                'scores': scores,
+                'stable_shape': stable_shape,
+                'stable_confidence': stable_confidence,
+                'buffer_size': len(self.shape_buffer),
+            }
+        
+        # Create annotated frame
+        annotated_frame = self.draw_debug_overlay(frame, normalized_landmarks) if self.debug_mode else frame.copy()
+        
+        # Return stabilized result or instant if not yet stable
+        final_shape = stable_shape if stable_shape else instant_shape
+        final_confidence = stable_confidence if stable_shape else instant_confidence
+        
+        return final_shape, final_confidence, annotated_frame
     
-    def classify_shape(self, face_ratio, jaw_to_cheek, forehead_to_cheek, chin_to_cheek):
+    def draw_debug_overlay(self, frame, normalized_landmarks):
         """
-        Classify face shape based on calculated ratios
-        Enhanced algorithm with more accurate thresholds
+        Draw measurement lines and debug info on frame
         """
-        # Calculate jawline tapering (how much the face narrows from jaw to chin)
-        jaw_taper = jaw_to_cheek - chin_to_cheek
+        annotated = frame.copy()
+        L = self.LANDMARKS
         
-        # DIAMOND: Prominent cheekbones, narrow forehead AND narrow chin
-        # Key feature: widest at cheeks, narrow at both top and bottom
-        if (forehead_to_cheek < 0.92 and chin_to_cheek < 0.65 and 
-            face_ratio >= 1.25):
-            return "DIAMOND"
+        # Draw key measurement lines
+        def draw_line(p1_idx, p2_idx, color, thickness=2):
+            p1 = normalized_landmarks[p1_idx]
+            p2 = normalized_landmarks[p2_idx]
+            cv2.line(annotated, (p1[0], p1[1]), (p2[0], p2[1]), color, thickness)
         
-        # HEART: Wide forehead, narrow pointed chin
-        # Key feature: widest at forehead, significant tapering to chin
-        if (forehead_to_cheek >= 0.98 and chin_to_cheek < 0.70 and 
-            jaw_taper > 0.15):
-            return "HEART"
+        # Face height (green)
+        draw_line(L['face_top'], L['chin'], (0, 255, 0), 2)
         
-        # SQUARE: Nearly equal face length and width, strong angular jawline
-        # Key feature: minimal tapering from jaw to chin, similar widths all around
-        if (face_ratio < 1.25 and jaw_to_cheek >= 0.88 and 
-            forehead_to_cheek >= 0.90 and jaw_taper < 0.12):
-            return "SQUARE"
+        # Forehead width (blue)
+        draw_line(L['forehead_left'], L['forehead_right'], (255, 0, 0), 2)
         
-        # ROUND: Face length close to width, soft curves, fuller cheeks
-        # Key feature: similar proportions all around, but softer jawline than square
-        if (face_ratio < 1.20 and jaw_to_cheek >= 0.85 and 
-            forehead_to_cheek >= 0.85):
-            return "ROUND"
+        # Cheekbone width (red)
+        draw_line(L['cheekbone_left'], L['cheekbone_right'], (0, 0, 255), 2)
         
-        # OVAL: Balanced proportions, face length > width, gently rounded features
-        # Key feature: harmonious proportions, gentle tapering
-        if (1.25 <= face_ratio <= 1.75 and 
-            0.70 <= jaw_to_cheek <= 0.92 and
-            0.85 <= forehead_to_cheek <= 1.05):
-            return "OVAL"
+        # Jaw width (yellow)
+        draw_line(L['jaw_left'], L['jaw_right'], (0, 255, 255), 2)
         
-        # Additional OVAL catch for borderline cases
-        if (face_ratio >= 1.20 and 
-            0.68 <= chin_to_cheek <= 0.80 and
-            jaw_taper > 0.08 and jaw_taper < 0.20):
-            return "OVAL"
+        # Draw measurements text
+        if self.debug_info:
+            y_offset = 30
+            for key, value in self.debug_info.get('ratios', {}).items():
+                text = f"{key}: {value:.2f}"
+                cv2.putText(annotated, text, (10, y_offset), 
+                           cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
+                y_offset += 20
         
-        # Default: OVAL (most common face shape)
-        # If measurements don't clearly match any category
-        return "OVAL"
+        return annotated
     
     def cleanup(self):
         """Release MediaPipe resources"""
@@ -200,7 +445,8 @@ class ModernFaceShapeApp:
         # Variables
         self.camera_running = False
         self.cap = None
-        self.face_detector = FaceShapeDetector()
+        self.debug_mode = False
+        self.face_detector = FaceShapeDetector(debug_mode=self.debug_mode)
         self.current_face_shape = "Unknown"
         self.detection_stable_count = 0
         self.last_detected_shape = None
