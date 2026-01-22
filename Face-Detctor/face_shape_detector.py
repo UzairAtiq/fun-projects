@@ -289,8 +289,10 @@ class FaceShapeDetector:
         sorted_scores = sorted(scores.items(), key=lambda x: x[1], reverse=True)
         runner_up_score = sorted_scores[1][1] if len(sorted_scores) > 1 else 0
         
-        # Only return classification if confident (difference >= 0.15)
-        if best_score - runner_up_score >= 0.15 and best_score >= 0.70:
+        # Only return classification if confident (more realistic thresholds)
+        # best_score >= 0.50 (was 0.70 - too strict)
+        # difference >= 0.10 (was 0.15 - too strict)
+        if best_score - runner_up_score >= 0.10 and best_score >= 0.50:
             return best_shape, best_score, scores
         else:
             return "UNCLEAR", best_score, scores
@@ -325,10 +327,10 @@ class FaceShapeDetector:
         # Calculate stability (what % of frames agree)
         stability = count / len(recent_shapes)
         
-        # Only return if stability >= 70% and average confidence >= 70%
+        # Only return if stability >= 60% and average confidence >= 50%
         avg_confidence = np.mean(recent_confidences)
         
-        if stability >= 0.70 and avg_confidence >= 0.70:
+        if stability >= 0.60 and avg_confidence >= 0.50:
             return most_common_shape, avg_confidence
         else:
             return None, 0.0
