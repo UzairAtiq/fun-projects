@@ -10,7 +10,7 @@ echo ""
 source venv/bin/activate
 
 # Run the application
-python face_shape_detector.py
+python modern_ui.py
 
 # Deactivate when done
 deactivate

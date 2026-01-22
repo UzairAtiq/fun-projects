@@ -226,7 +226,7 @@ class AnimeStyleApp:
         # Date / Info Badge (Similar to 'New Episode')
         self.date_badge = ctk.CTkFrame(
             self.hero_card, 
-            fg_color="rgba(0,0,0,0.5)", # Simulate dark overlay
+            fg_color="#181818", # Solid color
             corner_radius=20,
             width=140, height=90
         )
