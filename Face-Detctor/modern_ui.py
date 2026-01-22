@@ -272,18 +272,31 @@ class AnimeStyleApp:
 
     def open_camera_overlay(self):
         """
-        Pops up the camera overlay
+        Pops up the camera overlay with animation
         """
         # Create a top-level window or a frame overlay
         self.overlay = ctk.CTkFrame(
             self.window,
-            fg_color="rgba(0,0,0,0.9)", # Semi-transparent if possible, but tk doesn't support well
+            fg_color="#000000", 
             corner_radius=0
         )
-        # Using a frame that covers everything
-        self.overlay.place(relx=0, rely=0, relwidth=1, relheight=1)
-        self.overlay.lift() # Bring to front
+        self.overlay.place(relx=0.5, rely=0.5, relwidth=0, relheight=0, anchor="center")
+        self.overlay.lift()
         
+        # Animate Expansion
+        def animate_open(w=0, h=0):
+            if w < 1.0:
+                w += 0.1
+                h += 0.1
+                self.overlay.place(relx=0.5, rely=0.5, relwidth=w, relheight=h, anchor="center")
+                self.window.after(10, lambda: animate_open(w, h))
+            else:
+                self.finish_overlay_setup()
+        
+        animate_open()
+
+    def finish_overlay_setup(self):
+        """After animation, place contents"""
         # Close button
         self.btn_close = ctk.CTkButton(
             self.overlay,
@@ -304,14 +317,14 @@ class AnimeStyleApp:
             width=640,
             height=480,
             corner_radius=30,
-            fg_color="black"
+            fg_color="#111111"
         )
         self.cam_frame.place(relx=0.5, rely=0.4, anchor="center")
         
         self.lbl_cam = ctk.CTkLabel(self.cam_frame, text="Loading Camera...", text_color="white")
         self.lbl_cam.place(relx=0.5, rely=0.5, anchor="center")
         
-        # Result Area (Below Camera)
+        # Result Area
         self.lbl_result = ctk.CTkLabel(
             self.overlay,
             text="Analyzing...",
@@ -320,12 +333,26 @@ class AnimeStyleApp:
         )
         self.lbl_result.place(relx=0.5, rely=0.8, anchor="center")
         
-        # Start Camera Logic
+        # Start Camera
         self.start_camera()
         
     def close_overlay(self):
         self.stop_camera()
-        self.overlay.destroy()
+        # Animate Close
+        def animate_close(w=1.0, h=1.0):
+            if w > 0.1:
+                w -= 0.1
+                h -= 0.1
+                # Ensure widget exists before configuring
+                try:
+                    self.overlay.place(relx=0.5, rely=0.5, relwidth=w, relheight=h, anchor="center")
+                    self.window.after(10, lambda: animate_close(w, h))
+                except:
+                    pass
+            else:
+                self.overlay.destroy()
+        
+        animate_close()
         
     def start_camera(self):
         self.camera_running = True
