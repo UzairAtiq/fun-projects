@@ -356,7 +356,13 @@ class AnimeStyleApp:
         
     def start_camera(self):
         self.camera_running = True
-        self.cap = cv2.VideoCapture(1) # Index 1
+        try:
+            self.cap = cv2.VideoCapture(1) # Try Index 1 first
+            if not self.cap.isOpened():
+                raise Exception("Cam 1 failed")
+        except:
+            print("Camera 1 failed, trying 0...")
+            self.cap = cv2.VideoCapture(0) # Fallback to 0
         
         thread = threading.Thread(target=self.camera_loop, daemon=True)
         thread.start()
