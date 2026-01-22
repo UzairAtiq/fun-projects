@@ -21,6 +21,20 @@ A modern desktop application that detects your face shape in real-time using AI-
 - Python 3.8 or higher
 - Webcam access
 
+### Setup Virtual Environment (Recommended)
+
+```bash
+# Create virtual environment
+python3 -m venv venv
+
+# Activate virtual environment
+# On macOS/Linux:
+source venv/bin/activate
+
+# On Windows:
+venv\Scripts\activate
+```
+
 ### Install Dependencies
 
 ```bash
@@ -35,11 +49,27 @@ pip install opencv-python mediapipe numpy customtkinter Pillow
 
 ## 🎯 Usage
 
-Run the application:
+### Option 1: Using the Run Script (Easiest)
 
 ```bash
+./run.sh
+```
+
+The run script automatically activates the virtual environment and launches the app.
+
+### Option 2: Manual Run
+
+```bash
+# Activate virtual environment first
+source venv/bin/activate  # macOS/Linux
+# OR
+venv\Scripts\activate  # Windows
+
+# Run the application
 python face_shape_detector.py
 ```
+
+### Using the App
 
 1. Click **"Start Face Scan"** to begin
 2. Position your face in front of the camera
@@ -118,6 +148,9 @@ Project-1/
 │
 ├── face_shape_detector.py  # Main application file
 ├── requirements.txt         # Python dependencies
+├── run.sh                   # Convenient run script
+├── .gitignore              # Git ignore rules
+├── venv/                   # Virtual environment (not tracked)
 └── README.md               # This file
 ```
 
