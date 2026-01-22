@@ -58,6 +58,9 @@ class FaceShapeDetector:
         self.RIGHT_JAW = 397
         self.LEFT_FOREHEAD = 21
         self.RIGHT_FOREHEAD = 251
+        self.CHIN_TIP = 152
+        self.LEFT_CHIN = 206
+        self.RIGHT_CHIN = 426
         
     def calculate_distance(self, point1, point2):
         """Calculate Euclidean distance between two points"""
@@ -107,46 +110,73 @@ class FaceShapeDetector:
             landmarks[self.RIGHT_FOREHEAD]
         )
         
+        chin_width = self.calculate_distance(
+            landmarks[self.LEFT_CHIN],
+            landmarks[self.RIGHT_CHIN]
+        )
+        
         # Calculate ratios
         face_ratio = face_length / cheekbone_width if cheekbone_width > 0 else 0
         jaw_to_cheek = jaw_width / cheekbone_width if cheekbone_width > 0 else 0
         forehead_to_cheek = forehead_width / cheekbone_width if cheekbone_width > 0 else 0
+        chin_to_cheek = chin_width / cheekbone_width if cheekbone_width > 0 else 0
         
         # Classify face shape based on ratios
-        face_shape = self.classify_shape(face_ratio, jaw_to_cheek, forehead_to_cheek)
+        face_shape = self.classify_shape(face_ratio, jaw_to_cheek, forehead_to_cheek, chin_to_cheek)
         
         # Draw landmarks for visualization (optional, can be toggled)
         annotated_frame = frame.copy()
         
         return face_shape, 0.85, annotated_frame
     
-    def classify_shape(self, face_ratio, jaw_to_cheek, forehead_to_cheek):
+    def classify_shape(self, face_ratio, jaw_to_cheek, forehead_to_cheek, chin_to_cheek):
         """
         Classify face shape based on calculated ratios
+        Enhanced algorithm with more accurate thresholds
         """
-        # OVAL: Balanced, face longer than wide, rounded features
-        if 1.3 <= face_ratio <= 1.6 and 0.7 <= jaw_to_cheek <= 0.95:
-            return "OVAL"
+        # Calculate jawline tapering (how much the face narrows from jaw to chin)
+        jaw_taper = jaw_to_cheek - chin_to_cheek
         
-        # ROUND: Face length close to width, fuller cheeks
-        elif face_ratio < 1.3 and jaw_to_cheek > 0.9:
-            return "ROUND"
-        
-        # SQUARE: Face length ≈ width, strong jaw
-        elif face_ratio < 1.3 and 0.85 <= jaw_to_cheek <= 1.0 and forehead_to_cheek > 0.9:
-            return "SQUARE"
-        
-        # HEART: Wide forehead, narrow chin
-        elif forehead_to_cheek > 1.0 and jaw_to_cheek < 0.75:
-            return "HEART"
-        
-        # DIAMOND: Wide cheekbones, narrow forehead and chin
-        elif forehead_to_cheek < 0.9 and jaw_to_cheek < 0.85:
+        # DIAMOND: Prominent cheekbones, narrow forehead AND narrow chin
+        # Key feature: widest at cheeks, narrow at both top and bottom
+        if (forehead_to_cheek < 0.92 and chin_to_cheek < 0.65 and 
+            face_ratio >= 1.25):
             return "DIAMOND"
         
-        # Default to OVAL if unclear
-        else:
+        # HEART: Wide forehead, narrow pointed chin
+        # Key feature: widest at forehead, significant tapering to chin
+        if (forehead_to_cheek >= 0.98 and chin_to_cheek < 0.70 and 
+            jaw_taper > 0.15):
+            return "HEART"
+        
+        # SQUARE: Nearly equal face length and width, strong angular jawline
+        # Key feature: minimal tapering from jaw to chin, similar widths all around
+        if (face_ratio < 1.25 and jaw_to_cheek >= 0.88 and 
+            forehead_to_cheek >= 0.90 and jaw_taper < 0.12):
+            return "SQUARE"
+        
+        # ROUND: Face length close to width, soft curves, fuller cheeks
+        # Key feature: similar proportions all around, but softer jawline than square
+        if (face_ratio < 1.20 and jaw_to_cheek >= 0.85 and 
+            forehead_to_cheek >= 0.85):
+            return "ROUND"
+        
+        # OVAL: Balanced proportions, face length > width, gently rounded features
+        # Key feature: harmonious proportions, gentle tapering
+        if (1.25 <= face_ratio <= 1.75 and 
+            0.70 <= jaw_to_cheek <= 0.92 and
+            0.85 <= forehead_to_cheek <= 1.05):
             return "OVAL"
+        
+        # Additional OVAL catch for borderline cases
+        if (face_ratio >= 1.20 and 
+            0.68 <= chin_to_cheek <= 0.80 and
+            jaw_taper > 0.08 and jaw_taper < 0.20):
+            return "OVAL"
+        
+        # Default: OVAL (most common face shape)
+        # If measurements don't clearly match any category
+        return "OVAL"
     
     def cleanup(self):
         """Release MediaPipe resources"""
@@ -360,7 +390,7 @@ class ModernFaceShapeApp:
     def start_camera(self):
         """Initialize and start the webcam"""
         self.camera_running = True
-        self.cap = cv2.VideoCapture(0)
+        self.cap = cv2.VideoCapture(1)
         
         # Set camera resolution
         self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
