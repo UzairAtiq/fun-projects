@@ -172,7 +172,7 @@ class AnimeStyleApp:
                 font=("Arial", 12, "bold"),
                 fg_color="transparent",
                 text_color=self.c_text_dim,
-                hover_color="transparent",
+                hover_color=self.c_card,
                 width=60
             )
             btn.pack(side="top", padx=20, anchor="n") # Just pack them centered essentially
@@ -223,17 +223,19 @@ class AnimeStyleApp:
         )
         self.lbl_real_title.place(relx=0.1, rely=0.3)
         
-        # Date / Info Badge
+        # Date / Info Badge (Similar to 'New Episode')
         self.date_badge = ctk.CTkFrame(
             self.hero_card, 
-            fg_color="#181818", 
+            fg_color="rgba(0,0,0,0.5)", # Simulate dark overlay
             corner_radius=20,
-            width=120, height=80
+            width=140, height=90
         )
-        self.date_badge.place(relx=0.85, rely=0.2, anchor="center")
+        # Hack for transparency simulation -> use card color
+        self.date_badge.configure(fg_color="#181818")
+        self.date_badge.place(relx=0.85, rely=0.25, anchor="center")
         
-        ctk.CTkLabel(self.date_badge, text="STATUS", font=("Arial", 10), text_color="gray").place(relx=0.5, rely=0.3, anchor="center")
-        ctk.CTkLabel(self.date_badge, text="ONLINE", font=("Arial", 16, "bold"), text_color="white").place(relx=0.5, rely=0.6, anchor="center")
+        ctk.CTkLabel(self.date_badge, text="NEW UPDATE", font=("Arial", 10), text_color="#AAAAAA").place(relx=0.5, rely=0.3, anchor="center")
+        ctk.CTkLabel(self.date_badge, text="v2.0", font=("Arial", 28, "bold"), text_color="white").place(relx=0.5, rely=0.6, anchor="center")
 
         # 2. "CONTINUE" / START Card (Bottom Right floating)
         self.start_card = ctk.CTkFrame(
