@@ -22,12 +22,14 @@ class AnimeStyleApp:
         ctk.set_appearance_mode("dark")
         ctk.set_default_color_theme("dark-blue")
         
-        # Colors (based on the reference image)
-        self.c_bg = "#121212"       # Main Background (very dark)
-        self.c_card = "#1E1E1E"     # Card Background
-        self.c_accent = "#8B0000"   # Deep Red Accent
+        # Colors (based on the reference image - red anime theme)
+        self.c_bg = "#0D0D0D"       # Main Background (almost black)
+        self.c_card = "#1A1A1A"     # Card Background (dark gray)
+        self.c_accent = "#DC143C"   # Crimson Red Accent
+        self.c_secondary = "#8B0000" # Dark Red Secondary
         self.c_text = "#FFFFFF"     # White Text
-        self.c_text_dim = "#9E9E9E" # Dim Text
+        self.c_text_dim = "#8A8A8A" # Dim Text
+        self.c_hover = "#2A2A2A"    # Hover state
         
         # Window setup
         self.window = ctk.CTk()
