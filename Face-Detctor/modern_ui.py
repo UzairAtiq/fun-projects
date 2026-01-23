@@ -195,6 +195,14 @@ class AnimeStyleApp:
             height=2
         )
         self.tab_underline.place(relx=0.5, rely=0.95, anchor="center")
+        
+        # CHAT subtitle
+        ctk.CTkLabel(
+            self.hero_card,
+            text="CHAT",
+            font=("Arial", 11, "bold"),
+            text_color=self.c_text_dim
+        ).place(relx=0.5, rely=0.14, anchor="center")
 
     def build_hero_content(self):
         """Builds the main graphic and the start button card"""
@@ -235,16 +243,26 @@ class AnimeStyleApp:
         # Date / Info Badge (Similar to 'New Episode')
         self.date_badge = ctk.CTkFrame(
             self.hero_card, 
-            fg_color="#181818", # Solid color
-            corner_radius=20,
-            width=140, height=90
+            fg_color="#0F0F0F",
+            corner_radius=25,
+            width=130, height=100
         )
-        # Hack for transparency simulation -> use card color
-        self.date_badge.configure(fg_color="#181818")
-        self.date_badge.place(relx=0.85, rely=0.25, anchor="center")
+        self.date_badge.place(relx=0.88, rely=0.22, anchor="center")
         
-        ctk.CTkLabel(self.date_badge, text="NEW UPDATE", font=("Arial", 10), text_color="#AAAAAA").place(relx=0.5, rely=0.3, anchor="center")
-        ctk.CTkLabel(self.date_badge, text="v2.0", font=("Arial", 28, "bold"), text_color="white").place(relx=0.5, rely=0.6, anchor="center")
+        ctk.CTkLabel(
+            self.date_badge, 
+            text="NEW EPISODE", 
+            font=("Arial", 9, "bold"), 
+            text_color="#666666"
+        ).place(relx=0.5, rely=0.3, anchor="center")
+        
+        # Date display
+        ctk.CTkLabel(
+            self.date_badge, 
+            text="8\nMAR", 
+            font=("Arial", 26, "bold"), 
+            text_color="white"
+        ).place(relx=0.5, rely=0.65, anchor="center")
 
         # 2. "CONTINUE" / START Card (Bottom Right)
         self.start_card = ctk.CTkFrame(
