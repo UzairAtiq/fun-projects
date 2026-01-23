@@ -73,16 +73,16 @@ class AnimeStyleApp:
             self.sidebar, 
             width=90,
             height=320, 
-            corner_radius=40, 
-            fg_color=self.c_card
+            corner_radius=45, 
+            fg_color="#141414"
         )
         self.card_nav.pack(fill="x", pady=(0, 10))
         self.card_nav.pack_propagate(False) # Respect height
         
-        # Icons
-        self.create_icon_btn(self.card_nav, "🌀", True) # Logo
+        # Icons with red accent for active
+        self.create_icon_btn(self.card_nav, "⚡", True) # Logo
         self.create_icon_btn(self.card_nav, "🏠", False) # Home
-        self.create_icon_btn(self.card_nav, "★", False)  # Favorites
+        self.create_icon_btn(self.card_nav, "⭐", False)  # Favorites
         self.create_icon_btn(self.card_nav, "⚙️", False) # Settings
 
         # 2. Profile Card (Middle Left)
@@ -90,23 +90,23 @@ class AnimeStyleApp:
             self.sidebar,
             width=90,
             height=140,
-            corner_radius=40,
-            fg_color=self.c_card
+            corner_radius=45,
+            fg_color="#141414"
         )
         self.card_profile.pack(fill="x", pady=10)
         self.card_profile.pack_propagate(False)
         
-        # Avatar
+        # Avatar with red border
         self.avatar = ctk.CTkLabel(
             self.card_profile,
             text="👤",
-            font=("Arial", 30),
-            width=50,
-            height=50,
-            fg_color="#333333",
-            corner_radius=25
+            font=("Arial", 32),
+            width=55,
+            height=55,
+            fg_color="#252525",
+            corner_radius=28
         )
-        self.avatar.place(relx=0.5, rely=0.4, anchor="center")
+        self.avatar.place(relx=0.5, rely=0.38, anchor="center")
         
         lbl_prof = ctk.CTkLabel(self.card_profile, text="PROFILE", font=("Arial", 10, "bold"), text_color=self.c_text_dim)
         lbl_prof.place(relx=0.5, rely=0.8, anchor="center")
@@ -116,8 +116,8 @@ class AnimeStyleApp:
             self.sidebar,
             width=90,
             height=150,
-            corner_radius=40,
-            fg_color=self.c_card
+            corner_radius=45,
+            fg_color="#141414"
         )
         self.card_socials.pack(fill="x", pady=10)
         self.card_socials.pack_propagate(False)
@@ -146,14 +146,15 @@ class AnimeStyleApp:
         
     def create_icon_btn(self, parent, icon, active):
         """Helper for sidebar icons"""
-        color = self.c_text if active else self.c_text_dim
+        color = self.c_accent if active else self.c_text_dim
+        bg_color = "#252525" if active else "transparent"
         btn = ctk.CTkButton(
             parent,
             text=icon,
-            font=("Arial", 24),
-            fg_color="transparent",
+            font=("Arial", 22),
+            fg_color=bg_color,
             text_color=color,
-            hover_color="#333333",
+            hover_color="#252525",
             width=50,
             height=50,
             corner_radius=25
