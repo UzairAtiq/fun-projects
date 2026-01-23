@@ -194,36 +194,37 @@ class AnimeStyleApp:
         """Builds the main graphic and the start button card"""
         
         # 1. Main Title / Graphic Placeholder
-        # Since we can't generate the anime girl image easily, we use a gradient/color block
-        # or just a cool title
+        # Anime-style hero section with red gradient
         
         self.hero_graphic = ctk.CTkFrame(
             self.hero_card,
-            fg_color="#2A2A2A", # Slightly lighter than card
+            fg_color="#1A0505", # Dark red base
             corner_radius=30,
-            width=600,
+            width=680,
+            height=420
+        )
+        self.hero_graphic.place(relx=0.45, rely=0.48, anchor="center")
+        
+        # Anime character placeholder with red overlay effect
+        self.anime_overlay = ctk.CTkFrame(
+            self.hero_graphic,
+            fg_color="#2A0A0A",
+            corner_radius=25,
+            width=660,
             height=400
         )
-        self.hero_graphic.place(relx=0.5, rely=0.45, anchor="center")
+        self.anime_overlay.place(relx=0.5, rely=0.5, anchor="center")
         
-        # Title inside graphic
-        self.lbl_title = ctk.CTkLabel(
-            self.hero_graphic,
-            text="FACE SHAPE\nDETECTOR",
-            font=("Arial", 64, "bold"),
-            text_color="#333333" # Subtle watermark style
-        )
-        self.lbl_title.place(relx=0.5, rely=0.5, anchor="center")
         
         # Real Title Overlay
         self.lbl_real_title = ctk.CTkLabel(
             self.hero_card,
             text="Face Shape\nAnalysis AI",
-            font=("Arial", 42, "bold"),
+            font=("Arial", 48, "bold"),
             text_color="white",
             justify="left"
         )
-        self.lbl_real_title.place(relx=0.1, rely=0.3)
+        self.lbl_real_title.place(relx=0.08, rely=0.35)
         
         # Date / Info Badge (Similar to 'New Episode')
         self.date_badge = ctk.CTkFrame(
