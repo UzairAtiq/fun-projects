@@ -306,7 +306,7 @@ class AnimeStyleApp:
         # Create a top-level window or a frame overlay
         self.overlay = ctk.CTkFrame(
             self.window,
-            fg_color="#000000", 
+            fg_color="#0A0A0A", 
             corner_radius=0
         )
         self.overlay.place(relx=0.5, rely=0.5, relwidth=0, relheight=0, anchor="center")
@@ -330,12 +330,15 @@ class AnimeStyleApp:
         self.btn_close = ctk.CTkButton(
             self.overlay,
             text="✕",
-            font=("Arial", 24),
+            font=("Arial", 20),
             width=50,
             height=50,
             corner_radius=25,
-            fg_color="#333333",
-            hover_color="red",
+            fg_color="#1A1A1A",
+            hover_color=self.c_accent,
+            text_color=self.c_text_dim,
+            border_width=2,
+            border_color="#2A2A2A",
             command=self.close_overlay
         )
         self.btn_close.place(relx=0.95, rely=0.05, anchor="ne")
@@ -346,21 +349,28 @@ class AnimeStyleApp:
             width=640,
             height=480,
             corner_radius=30,
-            fg_color="#111111"
+            fg_color="#151515",
+            border_width=3,
+            border_color=self.c_secondary
         )
         self.cam_frame.place(relx=0.5, rely=0.4, anchor="center")
         
-        self.lbl_cam = ctk.CTkLabel(self.cam_frame, text="Loading Camera...", text_color="white")
+        self.lbl_cam = ctk.CTkLabel(
+            self.cam_frame, 
+            text="Loading Camera...", 
+            text_color="white",
+            font=("Arial", 16)
+        )
         self.lbl_cam.place(relx=0.5, rely=0.5, anchor="center")
         
         # Result Area
         self.lbl_result = ctk.CTkLabel(
             self.overlay,
             text="Analyzing...",
-            font=("Arial", 32, "bold"),
+            font=("Arial", 34, "bold"),
             text_color=self.c_accent
         )
-        self.lbl_result.place(relx=0.5, rely=0.8, anchor="center")
+        self.lbl_result.place(relx=0.5, rely=0.82, anchor="center")
         
         # Start Camera
         self.start_camera()
