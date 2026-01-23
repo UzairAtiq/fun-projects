@@ -34,7 +34,7 @@ class AnimeStyleApp:
         # Window setup
         self.window = ctk.CTk()
         self.window.title("Face Shape Detector - Anime Edition")
-        self.window.geometry("1100x700")
+        self.window.geometry("1200x750")
         self.window.configure(fg_color=self.c_bg)
         self.window.resizable(False, False)
         
@@ -133,7 +133,7 @@ class AnimeStyleApp:
         # We need a large "Hero" card
         self.hero_card = ctk.CTkFrame(
             self.main_area,
-            fg_color=self.c_card,
+            fg_color="#161616",
             corner_radius=40
         )
         self.hero_card.pack(fill="both", expand=True)
