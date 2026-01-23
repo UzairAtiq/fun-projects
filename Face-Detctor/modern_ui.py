@@ -245,38 +245,40 @@ class AnimeStyleApp:
         ctk.CTkLabel(self.date_badge, text="NEW UPDATE", font=("Arial", 10), text_color="#AAAAAA").place(relx=0.5, rely=0.3, anchor="center")
         ctk.CTkLabel(self.date_badge, text="v2.0", font=("Arial", 28, "bold"), text_color="white").place(relx=0.5, rely=0.6, anchor="center")
 
-        # 2. "CONTINUE" / START Card (Bottom Right floating)
+        # 2. "CONTINUE" / START Card (Bottom Right)
         self.start_card = ctk.CTkFrame(
             self.hero_card,
-            width=280,
-            height=120,
-            fg_color="#181818", # Dark contrast
-            corner_radius=40
+            width=300,
+            height=100,
+            fg_color="#151515", # Dark contrast
+            corner_radius=50
         )
-        self.start_card.place(relx=0.85, rely=0.8, anchor="center")
+        self.start_card.place(relx=0.75, rely=0.85, anchor="center")
         
-        # "CONTINUE" text
+        # "START SCAN" text
         ctk.CTkLabel(
             self.start_card, 
             text="START SCAN", 
-            font=("Arial", 12, "bold"), 
-            text_color="gray"
-        ).place(relx=0.3, rely=0.5, anchor="center")
+            font=("Arial", 13, "bold"), 
+            text_color=self.c_text_dim
+        ).place(relx=0.28, rely=0.5, anchor="center")
         
-        # Play Button (Round)
+        # Play Button (Round with red accent)
         self.btn_play = ctk.CTkButton(
             self.start_card,
             text="▶",
-            font=("Arial", 24),
-            width=70,
-            height=70,
-            corner_radius=35,
-            fg_color="white", # Based on image play button
+            font=("Arial", 28),
+            width=65,
+            height=65,
+            corner_radius=33,
+            fg_color="white",
             text_color="black",
-            hover_color="#DDDDDD",
+            hover_color="#F0F0F0",
+            border_width=3,
+            border_color=self.c_accent,
             command=self.open_camera_overlay
         )
-        self.btn_play.place(relx=0.75, rely=0.5, anchor="center")
+        self.btn_play.place(relx=0.78, rely=0.5, anchor="center")
 
     def open_camera_overlay(self):
         """
