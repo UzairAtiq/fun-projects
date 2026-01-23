@@ -163,32 +163,37 @@ class AnimeStyleApp:
 
     def build_top_nav(self):
         """Tab navigation at top"""
-        nav_frame = ctk.CTkFrame(self.hero_card, fg_color="transparent", height=50)
-        nav_frame.pack(fill="x", pady=20)
+        nav_frame = ctk.CTkFrame(self.hero_card, fg_color="transparent", height=40)
+        nav_frame.pack(fill="x", pady=(15, 0))
         
         tabs = ["ANIME", "MANGA", "CHAT"]
-        for t in tabs:
+        
+        # Create a centered container for tabs
+        center_frame = ctk.CTkFrame(nav_frame, fg_color="transparent")
+        center_frame.place(relx=0.5, rely=0.5, anchor="center")
+        
+        for i, t in enumerate(tabs):
             btn = ctk.CTkButton(
-                nav_frame,
+                center_frame,
                 text=t,
-                font=("Arial", 12, "bold"),
+                font=("Arial", 11, "bold"),
                 fg_color="transparent",
-                text_color=self.c_text_dim,
-                hover_color=self.c_card,
-                width=60
+                text_color=self.c_text if i == 0 else self.c_text_dim,
+                hover_color=self.c_hover,
+                width=80,
+                height=30,
+                border_width=0
             )
-            btn.pack(side="top", padx=20, anchor="n") # Just pack them centered essentially
-            # Real centering is harder with pack, let's use a center frame
-            
-        # Refined centering:
-        # Just use a label for now to simulate the look
-        self.lbl_nav = ctk.CTkLabel(
-            self.hero_card, 
-            text="   ".join(tabs),
-            font=("Arial", 12, "bold"),
-            text_color=self.c_text_dim
+            btn.pack(side="left", padx=15)
+        
+        # Underline for active tab
+        self.tab_underline = ctk.CTkFrame(
+            nav_frame,
+            fg_color=self.c_accent,
+            width=50,
+            height=2
         )
-        self.lbl_nav.place(relx=0.5, rely=0.08, anchor="center")
+        self.tab_underline.place(relx=0.5, rely=0.95, anchor="center")
 
     def build_hero_content(self):
         """Builds the main graphic and the start button card"""
