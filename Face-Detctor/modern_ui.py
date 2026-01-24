@@ -100,6 +100,8 @@ class HifaceStyleApp:
         self.score_badge = ctk.CTkFrame(
             self.main_container,
             fg_color="#222222",
+            border_width=1,
+            border_color="#555555",
             corner_radius=20,
             height=40,
             width=120
