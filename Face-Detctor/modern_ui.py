@@ -113,11 +113,16 @@ class HifaceStyleApp:
         self.score_label.place(relx=0.5, rely=0.5, anchor="center")
         
         # 3. STATS CARD (Main Bento Content)
+        # Glass effect: Dark semi-transparent color (simulated) + Border
         self.stats_card = ctk.CTkFrame(
             self.main_container,
-            fg_color=self.c_card,
-            corner_radius=30
+            fg_color="#1A1A1A", # Dark semi-translucent look
+            bg_color="transparent",
+            corner_radius=30,
+            border_width=1,
+            border_color="rgba(255, 255, 255, 0.2)" if False else "#444444" # Tkinter doesn't support rgba border hex easily
         )
+        self.stats_card.configure(border_color="#555555")
         self.stats_card.pack(fill="both", expand=True, padx=0, pady=10)
         
         # "Your Face Shape" Title
