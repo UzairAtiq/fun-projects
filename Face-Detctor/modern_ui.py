@@ -86,7 +86,9 @@ class HifaceStyleApp:
             width=200,
             height=200,
             corner_radius=100, # Circular
-            fg_color="#222222"
+            fg_color="#222222",
+            border_width=2,
+            border_color=self.c_accent
         )
         self.cam_frame.pack(pady=10)
         self.cam_frame.pack_propagate(False) # Force size
