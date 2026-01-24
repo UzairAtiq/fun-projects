@@ -1,20 +1,17 @@
 import customtkinter as ctk
-from PIL import Image, ImageTk
+from PIL import Image, ImageDraw, ImageOps
 import cv2
 import threading
 import time
 import numpy as np
 
-# Import the logic class from the other file (or we can duplicate it for now to be self-contained)
-# For now, let's assume we can import it, or I'll just copy the FaceShapeDetector class here 
-# to ensure this file is standalone during dev.
-
+# Import the logic class
 from face_shape_detector import FaceShapeDetector
 
-class AnimeStyleApp:
+class HifaceStyleApp:
     """
-    Main application with Anime Dashboard Style UI
-    Dark, rounded, bento-grid layout.
+    Hiface-inspired UI for Face Shape Detection.
+    Vertical layout, dark theme, green accents.
     """
     
     def __init__(self):
@@ -22,395 +19,267 @@ class AnimeStyleApp:
         ctk.set_appearance_mode("dark")
         ctk.set_default_color_theme("dark-blue")
         
-        # Colors (based on the reference image - red anime theme)
-        self.c_bg = "#0D0D0D"       # Main Background (almost black)
-        self.c_card = "#1A1A1A"     # Card Background (dark gray)
-        self.c_accent = "#DC143C"   # Crimson Red Accent
-        self.c_secondary = "#8B0000" # Dark Red Secondary
-        self.c_text = "#FFFFFF"     # White Text
-        self.c_text_dim = "#8A8A8A" # Dim Text
-        self.c_hover = "#2A2A2A"    # Hover state
+        # Colors
+        self.c_bg = "#000000"       # Pure Black
+        self.c_card = "#121212"     # Very dark grey for cards
+        self.c_accent = "#00FF88"   # Neon Green
+        self.c_text_main = "#FFFFFF"
+        self.c_text_sec = "#888888"
+        self.c_bar_bg = "#333333"
         
-        # Window setup
+        # Window setup - Phone aspect ratio
         self.window = ctk.CTk()
-        self.window.title("Face Shape Detector - Anime Edition")
-        self.window.geometry("1200x750")
+        self.window.title("Hiface - Face Shape AI")
+        self.window.geometry("450x850") # Phone-like dimensions
         self.window.configure(fg_color=self.c_bg)
-        self.window.resizable(False, False)
+        self.window.resizable(True, True)
         
         # Logic Variables
         self.camera_running = False
         self.cap = None
-        self.debug_mode = False
-        self.face_detector = FaceShapeDetector(debug_mode=self.debug_mode)
-        self.current_face_shape = "Unknown"
+        self.detector = FaceShapeDetector(debug_mode=False)
+        self.current_scores = {}
+        self.current_shape = "Scanning..."
         self.detection_stable_count = 0
         self.last_detected_shape = None
         
-        # Setup Layout
+        # UI Setup
         self.setup_ui()
         
-    def setup_ui(self):
-        """Setup the Bento-Grid Layout"""
-        # Configure Grid
-        self.window.grid_columnconfigure(0, weight=0) # Sidebar
-        self.window.grid_columnconfigure(1, weight=1) # Main Content
-        self.window.grid_rowconfigure(0, weight=1)
-        
-        # --- SIDEBAR (Left) ---
-        self.sidebar = ctk.CTkFrame(
-            self.window, 
-            width=100, # Slim sidebar like the concept
-            corner_radius=30, 
-            fg_color="transparent" # The cards themselves will be the background
-        )
-        self.sidebar.grid(row=0, column=0, sticky="nsew", padx=(20, 10), pady=20)
-        
-        # Sidebar is actually a column of cards
-        
-        # 1. Navigation Pill-Card (Top Left)
-        self.card_nav = ctk.CTkFrame(
-            self.sidebar, 
-            width=90,
-            height=320, 
-            corner_radius=45, 
-            fg_color="#141414"
-        )
-        self.card_nav.pack(fill="x", pady=(0, 10))
-        self.card_nav.pack_propagate(False) # Respect height
-        
-        # Icons with red accent for active
-        self.create_icon_btn(self.card_nav, "⚡", True) # Logo
-        self.create_icon_btn(self.card_nav, "🏠", False) # Home
-        self.create_icon_btn(self.card_nav, "⭐", False)  # Favorites
-        self.create_icon_btn(self.card_nav, "⚙️", False) # Settings
-
-        # 2. Profile Card (Middle Left)
-        self.card_profile = ctk.CTkFrame(
-            self.sidebar,
-            width=90,
-            height=140,
-            corner_radius=45,
-            fg_color="#141414"
-        )
-        self.card_profile.pack(fill="x", pady=10)
-        self.card_profile.pack_propagate(False)
-        
-        # Avatar with red border
-        self.avatar = ctk.CTkLabel(
-            self.card_profile,
-            text="👤",
-            font=("Arial", 32),
-            width=55,
-            height=55,
-            fg_color="#252525",
-            corner_radius=28
-        )
-        self.avatar.place(relx=0.5, rely=0.38, anchor="center")
-        
-        lbl_prof = ctk.CTkLabel(self.card_profile, text="PROFILE", font=("Arial", 10, "bold"), text_color=self.c_text_dim)
-        lbl_prof.place(relx=0.5, rely=0.8, anchor="center")
-
-        # 3. Socials/Chat (Bottom Left)
-        self.card_socials = ctk.CTkFrame(
-            self.sidebar,
-            width=90,
-            height=150,
-            corner_radius=45,
-            fg_color="#141414"
-        )
-        self.card_socials.pack(fill="x", pady=10)
-        self.card_socials.pack_propagate(False)
-        
-        # --- MAIN DASHBOARD (Right) ---
-        self.main_area = ctk.CTkFrame(
-            self.window, 
-            corner_radius=40, 
-            fg_color="transparent" # Cards will provide background
-        )
-        self.main_area.grid(row=0, column=1, sticky="nsew", padx=(0, 20), pady=20)
-        
-        # We need a large "Hero" card
-        self.hero_card = ctk.CTkFrame(
-            self.main_area,
-            fg_color="#161616",
-            corner_radius=40
-        )
-        self.hero_card.pack(fill="both", expand=True)
-        
-        # Top Navigation inside Hero
-        self.build_top_nav()
-        
-        # Hero Content
-        self.build_hero_content()
-        
-    def create_icon_btn(self, parent, icon, active):
-        """Helper for sidebar icons"""
-        color = self.c_accent if active else self.c_text_dim
-        bg_color = "#252525" if active else "transparent"
-        btn = ctk.CTkButton(
-            parent,
-            text=icon,
-            font=("Arial", 22),
-            fg_color=bg_color,
-            text_color=color,
-            hover_color="#252525",
-            width=50,
-            height=50,
-            corner_radius=25
-        )
-        btn.pack(pady=15)
-        return btn
-
-    def build_top_nav(self):
-        """Tab navigation at top"""
-        nav_frame = ctk.CTkFrame(self.hero_card, fg_color="transparent", height=40)
-        nav_frame.pack(fill="x", pady=(15, 0))
-        
-        tabs = ["ANIME", "MANGA", "CHAT"]
-        
-        # Create a centered container for tabs
-        center_frame = ctk.CTkFrame(nav_frame, fg_color="transparent")
-        center_frame.place(relx=0.5, rely=0.5, anchor="center")
-        
-        for i, t in enumerate(tabs):
-            btn = ctk.CTkButton(
-                center_frame,
-                text=t,
-                font=("Arial", 11, "bold"),
-                fg_color="transparent",
-                text_color=self.c_text if i == 0 else self.c_text_dim,
-                hover_color=self.c_hover,
-                width=80,
-                height=30,
-                border_width=0
-            )
-            btn.pack(side="left", padx=15)
-        
-        # Underline for active tab
-        self.tab_underline = ctk.CTkFrame(
-            nav_frame,
-            fg_color=self.c_accent,
-            width=50,
-            height=2
-        )
-        self.tab_underline.place(relx=0.5, rely=0.95, anchor="center")
-        
-        # CHAT subtitle
-        ctk.CTkLabel(
-            self.hero_card,
-            text="CHAT",
-            font=("Arial", 11, "bold"),
-            text_color=self.c_text_dim
-        ).place(relx=0.5, rely=0.14, anchor="center")
-
-    def build_hero_content(self):
-        """Builds the main graphic and the start button card"""
-        
-        # 1. Main Title / Graphic Placeholder
-        # Anime-style hero section with red gradient
-        
-        self.hero_graphic = ctk.CTkFrame(
-            self.hero_card,
-            fg_color="#1A0505", # Dark red base
-            corner_radius=30,
-            width=680,
-            height=420
-        )
-        self.hero_graphic.place(relx=0.45, rely=0.48, anchor="center")
-        
-        # Anime character placeholder with red overlay effect
-        self.anime_overlay = ctk.CTkFrame(
-            self.hero_graphic,
-            fg_color="#2A0A0A",
-            corner_radius=25,
-            width=660,
-            height=400
-        )
-        self.anime_overlay.place(relx=0.5, rely=0.5, anchor="center")
-        
-        
-        # Real Title Overlay
-        self.lbl_real_title = ctk.CTkLabel(
-            self.hero_card,
-            text="Face Shape\nAnalysis AI",
-            font=("Arial", 48, "bold"),
-            text_color="white",
-            justify="left"
-        )
-        self.lbl_real_title.place(relx=0.08, rely=0.35)
-        
-        # Date / Info Badge (Similar to 'New Episode')
-        self.date_badge = ctk.CTkFrame(
-            self.hero_card, 
-            fg_color="#0F0F0F",
-            corner_radius=25,
-            width=130, height=100
-        )
-        self.date_badge.place(relx=0.88, rely=0.22, anchor="center")
-        
-        ctk.CTkLabel(
-            self.date_badge, 
-            text="NEW EPISODE", 
-            font=("Arial", 9, "bold"), 
-            text_color="#666666"
-        ).place(relx=0.5, rely=0.3, anchor="center")
-        
-        # Date display
-        ctk.CTkLabel(
-            self.date_badge, 
-            text="8\nMAR", 
-            font=("Arial", 26, "bold"), 
-            text_color="white"
-        ).place(relx=0.5, rely=0.65, anchor="center")
-
-        # 2. "CONTINUE" / START Card (Bottom Right)
-        self.start_card = ctk.CTkFrame(
-            self.hero_card,
-            width=300,
-            height=100,
-            fg_color="#151515", # Dark contrast
-            corner_radius=50
-        )
-        self.start_card.place(relx=0.75, rely=0.85, anchor="center")
-        
-        # "START SCAN" text
-        ctk.CTkLabel(
-            self.start_card, 
-            text="START SCAN", 
-            font=("Arial", 13, "bold"), 
-            text_color=self.c_text_dim
-        ).place(relx=0.28, rely=0.5, anchor="center")
-        
-        # Play Button (Round with red accent)
-        self.btn_play = ctk.CTkButton(
-            self.start_card,
-            text="▶",
-            font=("Arial", 28),
-            width=65,
-            height=65,
-            corner_radius=33,
-            fg_color="white",
-            text_color="black",
-            hover_color="#F0F0F0",
-            border_width=3,
-            border_color=self.c_accent,
-            command=self.open_camera_overlay
-        )
-        self.btn_play.place(relx=0.78, rely=0.5, anchor="center")
-
-    def open_camera_overlay(self):
-        """
-        Pops up the camera overlay with animation
-        """
-        # Create a top-level window or a frame overlay
-        self.overlay = ctk.CTkFrame(
-            self.window,
-            fg_color="#0A0A0A", 
-            corner_radius=0
-        )
-        self.overlay.place(relx=0.5, rely=0.5, relwidth=0, relheight=0, anchor="center")
-        self.overlay.lift()
-        
-        # Animate Expansion
-        def animate_open(w=0, h=0):
-            if w < 1.0:
-                w += 0.1
-                h += 0.1
-                self.overlay.place(relx=0.5, rely=0.5, relwidth=w, relheight=h, anchor="center")
-                self.window.after(10, lambda: animate_open(w, h))
-            else:
-                self.finish_overlay_setup()
-        
-        animate_open()
-
-    def finish_overlay_setup(self):
-        """After animation, place contents"""
-        # Close button
-        self.btn_close = ctk.CTkButton(
-            self.overlay,
-            text="✕",
-            font=("Arial", 20),
-            width=50,
-            height=50,
-            corner_radius=25,
-            fg_color="#1A1A1A",
-            hover_color=self.c_accent,
-            text_color=self.c_text_dim,
-            border_width=2,
-            border_color="#2A2A2A",
-            command=self.close_overlay
-        )
-        self.btn_close.place(relx=0.95, rely=0.05, anchor="ne")
-        
-        # Camera Area
-        self.cam_frame = ctk.CTkFrame(
-            self.overlay,
-            width=640,
-            height=480,
-            corner_radius=30,
-            fg_color="#151515",
-            border_width=3,
-            border_color=self.c_secondary
-        )
-        self.cam_frame.place(relx=0.5, rely=0.4, anchor="center")
-        
-        self.lbl_cam = ctk.CTkLabel(
-            self.cam_frame, 
-            text="Loading Camera...", 
-            text_color="white",
-            font=("Arial", 16)
-        )
-        self.lbl_cam.place(relx=0.5, rely=0.5, anchor="center")
-        
-        # Result Area
-        self.lbl_result = ctk.CTkLabel(
-            self.overlay,
-            text="Analyzing...",
-            font=("Arial", 34, "bold"),
-            text_color=self.c_accent
-        )
-        self.lbl_result.place(relx=0.5, rely=0.82, anchor="center")
-        
-        # Start Camera
+        # Start Camera automatically
         self.start_camera()
         
-    def close_overlay(self):
-        self.stop_camera()
-        # Animate Close
-        def animate_close(w=1.0, h=1.0):
-            if w > 0.1:
-                w -= 0.1
-                h -= 0.1
-                # Ensure widget exists before configuring
-                try:
-                    self.overlay.place(relx=0.5, rely=0.5, relwidth=w, relheight=h, anchor="center")
-                    self.window.after(10, lambda: animate_close(w, h))
-                except:
-                    pass
-            else:
-                self.overlay.destroy()
+    def setup_ui(self):
+        # Background Image
+        try:
+            bg_img = Image.open("glass_bg.png")
+            # Resize to cover window (simulated cover)
+            # We'll just make it big enough
+            bg_img = ImageOps.fit(bg_img, (800, 1000))
+            self.bg_image = ctk.CTkImage(bg_img, size=(800, 1000))
+            self.bg_label = ctk.CTkLabel(self.window, image=self.bg_image, text="")
+            self.bg_label.place(x=0, y=0, relwidth=1, relheight=1)
+        except Exception as e:
+            print(f"Bg error: {e}")
+            pass
+
+        # MAIN CONTAINER (Transparent)
+        self.main_container = ctk.CTkFrame(
+            self.window, 
+            fg_color="transparent", 
+            corner_radius=0
+        )
+        self.main_container.pack(fill="both", expand=True, padx=20, pady=20)
         
-        animate_close()
+        # 1. HEADER
+        self.header_label = ctk.CTkLabel(
+            self.main_container,
+            text="Hiface",
+            font=("Arial", 20, "bold"),
+            text_color=self.c_text_main
+        )
+        self.header_label.pack(pady=(10, 20))
         
+        # 2. CAMERA / FACE SECTION
+        self.cam_frame = ctk.CTkFrame(
+            self.main_container,
+            width=200,
+            height=200,
+            corner_radius=100, # Circular
+            fg_color="#222222"
+        )
+        self.cam_frame.pack(pady=10)
+        self.cam_frame.pack_propagate(False) # Force size
+        
+        self.cam_label = ctk.CTkLabel(self.cam_frame, text="")
+        self.cam_label.place(relx=0.5, rely=0.5, anchor="center")
+        
+        # Score Badge
+        self.score_badge = ctk.CTkFrame(
+            self.main_container,
+            fg_color="#222222",
+            corner_radius=20,
+            height=40,
+            width=120
+        )
+        self.score_badge.pack(pady=(15, 20))
+        
+        self.score_label = ctk.CTkLabel(
+            self.score_badge,
+            text="Score: --",
+            font=("Arial", 16, "bold"),
+            text_color=self.c_text_main
+        )
+        self.score_label.place(relx=0.5, rely=0.5, anchor="center")
+        
+        # 3. STATS CARD (Main Bento Content)
+        self.stats_card = ctk.CTkFrame(
+            self.main_container,
+            fg_color=self.c_card,
+            corner_radius=30
+        )
+        self.stats_card.pack(fill="both", expand=True, padx=0, pady=10)
+        
+        # "Your Face Shape" Title
+        ctk.CTkLabel(
+            self.stats_card,
+            text="Your Face Shape",
+            font=("Arial", 12, "bold"),
+            text_color="#666666"
+        ).pack(anchor="w", padx=20, pady=(20, 5))
+        
+        # Main Result Row
+        self.main_result_frame = ctk.CTkFrame(self.stats_card, fg_color="transparent")
+        self.main_result_frame.pack(fill="x", padx=20, pady=0)
+        
+        self.main_shape_label = ctk.CTkLabel(
+            self.main_result_frame,
+            text="Scanning...",
+            font=("Arial", 28, "bold"),
+            text_color=self.c_text_main
+        )
+        self.main_shape_label.pack(side="left")
+        
+        self.main_percent_label = ctk.CTkLabel(
+            self.main_result_frame,
+            text="--%",
+            font=("Arial", 28, "bold"),
+            text_color=self.c_text_sec  # Or white? Ref shows white
+        )
+        self.main_percent_label.pack(side="right")
+        
+        # Main Progress Bar
+        self.main_progress_bg = ctk.CTkFrame(
+            self.stats_card,
+            fg_color=self.c_bar_bg,
+            height=12,
+            corner_radius=6
+        )
+        self.main_progress_bg.pack(fill="x", padx=20, pady=(10, 25))
+        
+        self.main_progress_fill = ctk.CTkFrame(
+            self.main_progress_bg,
+            fg_color=self.c_accent,
+            height=12,
+            corner_radius=6,
+            width=0 # Start empty
+        )
+        self.main_progress_fill.pack(side="left") # Will update width
+        
+        # Grid for other shapes
+        self.grid_frame = ctk.CTkFrame(self.stats_card, fg_color="transparent")
+        self.grid_frame.pack(fill="both", expand=True, padx=20, pady=(0, 20))
+        
+        self.shape_rows = {} # To store references to update them
+        
+        # Reference has 2 columns. We have 5 shapes total. 
+        # Detector returns: OVAL, ROUND, SQUARE, HEART, DIAMOND.
+        # We'll display all 5 (or detection logic's full list).
+        
+        shapes = ["OVAL", "HEART", "SQUARE", "ROUND"] # Diamond is often main, but we'll dynamic sort
+        # Actually, let's just pre-build slots for 2 columns x 2 rows (remaining 4 shapes)
+        
+        self.grid_frame.grid_columnconfigure(0, weight=1)
+        self.grid_frame.grid_columnconfigure(1, weight=1)
+        
+        # We will create placeholders that we update dynamically
+        self.grid_items = []
+        for i in range(4): # 4 slots
+            row = i // 2
+            col = i % 2
+            
+            item_frame = ctk.CTkFrame(self.grid_frame, fg_color="transparent")
+            item_frame.grid(row=row, column=col, sticky="nsew", padx=10, pady=10)
+            
+            # Label & Percent
+            header = ctk.CTkFrame(item_frame, fg_color="transparent")
+            header.pack(fill="x")
+            
+            lbl = ctk.CTkLabel(
+                header, 
+                text="---", 
+                font=("Arial", 14, "bold"), 
+                text_color=self.c_text_main
+            )
+            lbl.pack(side="left")
+            
+            pct = ctk.CTkLabel(
+                header, 
+                text="--%", 
+                font=("Arial", 12), 
+                text_color=self.c_text_sec
+            )
+            pct.pack(side="right")
+            
+            # Mini Bar
+            bar_bg = ctk.CTkFrame(item_frame, fg_color=self.c_bar_bg, height=6, corner_radius=3)
+            bar_bg.pack(fill="x", pady=(5, 0))
+            
+            bar_fill = ctk.CTkFrame(bar_bg, fg_color=self.c_accent, height=6, corner_radius=3, width=0)
+            bar_fill.pack(side="left")
+            
+            self.grid_items.append({
+                "label": lbl,
+                "pct": pct,
+                "bar_fill": bar_fill,
+                "frame": item_frame
+            })
+            
+        # 4. BOTTOM ACTION & SOCIALS
+        self.bottom_frame = ctk.CTkFrame(self.main_container, fg_color="transparent")
+        self.bottom_frame.pack(fill="x", pady=0)
+        
+        # CTA Button
+        self.btn_cta = ctk.CTkButton(
+            self.bottom_frame,
+            text="Discover Your Facial Potential",
+            font=("Arial", 14, "bold"),
+            fg_color="transparent",
+            text_color="#FFFFFF",
+            border_width=1,
+            border_color="#444444",
+            height=50,
+            corner_radius=25,
+            hover_color="#222222"
+        )
+        self.btn_cta.pack(fill="x", pady=(0, 20))
+        
+        # Social Icons
+        socials_frame = ctk.CTkFrame(self.bottom_frame, fg_color="transparent")
+        socials_frame.pack(fill="x")
+        
+        icons = ["📷", "🐦", "🎵", "👻", "💬", "💾"]
+        colors = ["#E1306C", "#1DA1F2", "#FFFFFF", "#FFFC00", "#25D366", "#888888"] # Approx brand colors
+        
+        # Center the icons
+        socials_frame.grid_columnconfigure(tuple(range(len(icons))), weight=1)
+        
+        for i, (icon, color) in enumerate(zip(icons, colors)):
+            btn = ctk.CTkButton(
+                socials_frame,
+                text=icon,
+                font=("Arial", 16),
+                width=40,
+                height=40,
+                corner_radius=12,
+                fg_color="#1A1A1A",
+                text_color=color, # Icon color
+                hover_color="#333333"
+            )
+            btn.grid(row=0, column=i, padx=2)
+
     def start_camera(self):
         self.camera_running = True
         try:
-            self.cap = cv2.VideoCapture(1) # Try Index 1 first
+            self.cap = cv2.VideoCapture(0) # 0 is usually default
             if not self.cap.isOpened():
-                raise Exception("Cam 1 failed")
+                self.cap = cv2.VideoCapture(1)
         except:
-            print("Camera 1 failed, trying 0...")
-            self.cap = cv2.VideoCapture(0) # Fallback to 0
+            self.cap = None
         
         thread = threading.Thread(target=self.camera_loop, daemon=True)
         thread.start()
         
-    def stop_camera(self):
-        self.camera_running = False
-        if self.cap:
-            self.cap.release()
-            
     def camera_loop(self):
         while self.camera_running and self.cap:
             ret, frame = self.cap.read()
@@ -419,29 +288,92 @@ class AnimeStyleApp:
             frame = cv2.flip(frame, 1)
             
             # Detect
-            shape, conf, annotated = self.face_detector.detect_face_shape(frame)
+            shape, conf, _ = self.detector.detect_face_shape(frame)
             
-            # Update UI
-            if shape:
-                self.window.after(0, lambda s=shape: self.lbl_result.configure(text=s))
+            if not self.detector.debug_mode:
+                self.detector.debug_mode = True # Enable to capture internal scores
             
-            # Display
-            rgb = cv2.cvtColor(annotated, cv2.COLOR_BGR2RGB)
-            img = Image.fromarray(rgb)
-            imgtk = ImageTk.PhotoImage(image=img)
+            # Get data
+            scores = self.detector.debug_info.get('scores', {})
             
-            self.window.after(0, lambda i=imgtk: self.update_cam_label(i))
-            time.sleep(0.03)
+            # Update UI Data
+            if shape and scores:
+                self.window.after(0, lambda s=shape, c=conf, sc=scores: self.update_stats(s, c, sc))
             
-    def update_cam_label(self, imgtk):
-        try:
-            self.lbl_cam.configure(image=imgtk, text="")
-        except:
-            pass # Window might be closed
+            # Crop to circle for display
+            h, w, _ = frame.shape
+            min_dim = min(h, w)
+            start_x = (w - min_dim) // 2
+            start_y = (h - min_dim) // 2
+            cropped = frame[start_y:start_y+min_dim, start_x:start_x+min_dim]
+            
+            # Resize
+            cropped = cv2.resize(cropped, (200, 200))
+            
+            # Convert to PIL
+            rgb = cv2.cvtColor(cropped, cv2.COLOR_BGR2RGB)
+            img_pil = Image.fromarray(rgb)
+            
+            # Create circular mask
+            mask = Image.new('L', (200, 200), 0)
+            draw = ImageDraw.Draw(mask)
+            draw.ellipse((0, 0, 200, 200), fill=255)
+            
+            # Apply mask
+            img_output = ImageOps.fit(img_pil, (200, 200), centering=(0.5, 0.5))
+            img_output.putalpha(mask)
+            
+            # Create CTkImage
+            ctk_img = ctk.CTkImage(light_image=img_output, dark_image=img_output, size=(200, 200))
+            
+            self.window.after(0, lambda i=ctk_img: self.cam_label.configure(image=i))
+            
+            time.sleep(0.05)
+
+    def update_stats(self, shape, conf, scores):
+        # Update Main Shape
+        self.main_shape_label.configure(text=shape.title())
+        self.main_percent_label.configure(text=f"{int(conf*100)}%")
+        
+        # Animate Main Bar (Fake animation by setting width simply)
+        # Width of parent is dynamic, so we can't hardcode pixels easily without simpler relwidth?
+        # CTk doesn't support relwidth in pack easily for nested frames without place.
+        # But we can update the `width` property if we use place, or pack logic.
+        # Simple hack: Main bar max width ~350px.
+        bar_width = int(conf * 300) 
+        self.main_progress_fill.configure(width=bar_width)
+        
+        # Update Grid
+        # Sort scores to find the non-main ones
+        # scores is dict: {'OVAL': 0.8, ...}
+        
+        # Remove the main shape from the list to show in grid
+        other_shapes = [k for k in scores.keys() if k != shape]
+        # Sort by score descending
+        other_shapes.sort(key=lambda k: scores[k], reverse=True)
+        
+        # Take top 4
+        for i, key in enumerate(other_shapes[:4]):
+            val = scores[key]
+            pct = int(val * 100)
+            
+            item = self.grid_items[i]
+            item["label"].configure(text=key.title())
+            item["pct"].configure(text=f"{pct}%")
+            
+            # Bar width (max ~130px in grid)
+            w = int(val * 120)
+            item["bar_fill"].configure(width=w)
+            
+        # Update Score Badge (Fake "Beauty Score" based on confidence/symmetry proxy)
+        # We don't have real beauty score, use specific metric or just confidence map
+        # Let's map confidence 0.5-0.9 to 70-98
+        score = int(70 + (conf * 30))
+        self.score_label.configure(text=f"Score: {score}")
 
     def run(self):
         self.window.mainloop()
 
 if __name__ == "__main__":
-    app = AnimeStyleApp()
+    app = HifaceStyleApp()
     app.run()
