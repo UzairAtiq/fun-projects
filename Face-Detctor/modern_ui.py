@@ -197,11 +197,22 @@ class HifaceStyleApp:
             row = i // 2
             col = i % 2
             
-            item_frame = ctk.CTkFrame(self.grid_frame, fg_color="transparent")
+            # Glass-like item frame
+            item_frame = ctk.CTkFrame(
+                self.grid_frame, 
+                fg_color="#181818", 
+                border_width=1,
+                border_color="#333333",
+                corner_radius=15
+            )
             item_frame.grid(row=row, column=col, sticky="nsew", padx=10, pady=10)
             
+            # Inner padding container
+            inner = ctk.CTkFrame(item_frame, fg_color="transparent")
+            inner.pack(fill="both", expand=True, padx=15, pady=15)
+            
             # Label & Percent
-            header = ctk.CTkFrame(item_frame, fg_color="transparent")
+            header = ctk.CTkFrame(inner, fg_color="transparent")
             header.pack(fill="x")
             
             lbl = ctk.CTkLabel(
@@ -212,6 +223,7 @@ class HifaceStyleApp:
             )
             lbl.pack(side="left")
             
+            # Percent with accent color
             pct = ctk.CTkLabel(
                 header, 
                 text="--%", 
@@ -221,8 +233,8 @@ class HifaceStyleApp:
             pct.pack(side="right")
             
             # Mini Bar
-            bar_bg = ctk.CTkFrame(item_frame, fg_color=self.c_bar_bg, height=6, corner_radius=3)
-            bar_bg.pack(fill="x", pady=(5, 0))
+            bar_bg = ctk.CTkFrame(inner, fg_color=self.c_bar_bg, height=6, corner_radius=3)
+            bar_bg.pack(fill="x", pady=(10, 0))
             
             bar_fill = ctk.CTkFrame(bar_bg, fg_color=self.c_accent, height=6, corner_radius=3, width=0)
             bar_fill.pack(side="left")
