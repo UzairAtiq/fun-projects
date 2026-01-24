@@ -74,8 +74,8 @@ class HifaceStyleApp:
         # 1. HEADER
         self.header_label = ctk.CTkLabel(
             self.main_container,
-            text="Hiface",
-            font=("Arial", 20, "bold"),
+            text="Face Detector",
+            font=("Chalkboard SE", 24, "bold"),
             text_color=self.c_text_main
         )
         self.header_label.pack(pady=(10, 20))
