@@ -255,13 +255,13 @@ class HifaceStyleApp:
             self.bottom_frame,
             text="Discover Your Facial Potential",
             font=("Arial", 14, "bold"),
-            fg_color="transparent",
+            fg_color="#222222",
             text_color="#FFFFFF",
             border_width=1,
-            border_color="#444444",
+            border_color="#00FF88",
             height=50,
             corner_radius=25,
-            hover_color="#222222"
+            hover_color="#333333"
         )
         self.btn_cta.pack(fill="x", pady=(0, 20))
         
