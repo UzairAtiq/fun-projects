@@ -1,4 +1,7 @@
 {
+  "name": "cinematic-workout-logger",
+  "version": "1.0.0",
+  "description": "Logger - Cinematic Workout Tracking App",
   "dependencies": {
     "@capacitor/android": "^8.2.0",
     "@capacitor/cli": "^8.2.0",
