@@ -84,6 +84,31 @@ export function InputCanvas({ value, onChange, label, unit, max, onSwipeLeft, on
     // Show slider only when vertical movement is detected
     if (!showSlider && Math.abs(deltaY) > 20 && !isHorizontalSwipeRef.current) {
       setShowSlider(true);
+      
+      // Calculate initial digit based on finger position in the container
+      if (containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect();
+        const relativeY = startYRef.current - rect.top;
+        const containerHeight = rect.height;
+        
+        // Map Y position (0 to containerHeight) to digit (0 to 9)
+        // Top = 0, Bottom = 9, middle = 5, etc.
+        const normalizedPosition = Math.max(0, Math.min(1, relativeY / containerHeight));
+        const calculatedDigit = Math.round(normalizedPosition * 9);
+        
+        // Set this as the starting digit
+        const newDigits = [...digits];
+        newDigits[currentDigitIndex] = calculatedDigit;
+        setDigits(newDigits);
+        setHasInputStarted(true);
+        digitWasModifiedRef.current = true;
+        startDigitRef.current = calculatedDigit;
+        
+        // Update value
+        const enteredDigits = newDigits.filter(d => d !== null);
+        const newValue = enteredDigits.length > 0 ? parseInt(enteredDigits.join('')) : 0;
+        onChange(newValue);
+      }
     }
 
     // If horizontal swipe detected, ignore vertical movement
