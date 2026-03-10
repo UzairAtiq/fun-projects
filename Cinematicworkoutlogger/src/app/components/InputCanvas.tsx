@@ -16,23 +16,39 @@ const initAudioContext = () => {
   return audioContext;
 };
 
-// Haptic feedback helper that works on iOS
-const triggerHaptic = (type: 'light' | 'medium' | 'heavy' = 'light') => {
-  // Try vibration API first (Android)
+// Haptic feedback helper that works across platforms
+const triggerHaptic = async (type: 'light' | 'medium' | 'heavy' = 'light') => {
+  // 1. Try Vibration API (works on Chrome/Android)
   if (navigator.vibrate) {
     const patterns = {
-      light: 5,
-      medium: [5, 30, 5],
-      heavy: [10, 50, 10]
+      light: 10,
+      medium: 20,
+      heavy: 30
     };
     navigator.vibrate(patterns[type]);
-    return;
+    return; // Exit early if vibration worked
   }
   
-  // Fallback to audio feedback for iOS
+  // 2. Try Haptic Feedback API (experimental, some PWAs)
+  if ('vibrate' in navigator || 'haptics' in navigator) {
+    try {
+      const duration = type === 'heavy' ? 30 : type === 'medium' ? 20 : 10;
+      (navigator as any).vibrate?.(duration);
+      return;
+    } catch (e) {
+      // Continue to audio fallback
+    }
+  }
+  
+  // 3. Audio fallback for iOS (no vibration available)
   try {
     const ctx = initAudioContext();
     if (!ctx) return;
+    
+    // Resume audio context if suspended (iOS requirement)
+    if (ctx.state === 'suspended') {
+      await ctx.resume();
+    }
     
     const oscillator = ctx.createOscillator();
     const gainNode = ctx.createGain();
@@ -40,19 +56,19 @@ const triggerHaptic = (type: 'light' | 'medium' | 'heavy' = 'light') => {
     oscillator.connect(gainNode);
     gainNode.connect(ctx.destination);
     
-    // Very short, quiet click sound with different frequencies for different types
+    // Sharp click sounds that mimic keyboard haptics
     const frequencies = {
-      light: 800,
-      medium: 400,
-      heavy: 200
+      light: 1200,
+      medium: 800,
+      heavy: 400
     };
     
     oscillator.frequency.value = frequencies[type];
     oscillator.type = 'sine';
     
     const now = ctx.currentTime;
-    const duration = type === 'heavy' ? 0.03 : type === 'medium' ? 0.02 : 0.01;
-    const volume = type === 'heavy' ? 0.15 : type === 'medium' ? 0.12 : 0.08;
+    const duration = 0.02; // Very short for crisp feedback
+    const volume = type === 'heavy' ? 0.25 : type === 'medium' ? 0.2 : 0.15;
     
     gainNode.gain.setValueAtTime(volume, now);
     gainNode.gain.exponentialRampToValueAtTime(0.01, now + duration);
@@ -61,7 +77,6 @@ const triggerHaptic = (type: 'light' | 'medium' | 'heavy' = 'light') => {
     oscillator.stop(now + duration);
   } catch (e) {
     // Silent fail if audio context not available
-    console.warn('Haptic feedback failed:', e);
   }
 };
 
@@ -121,9 +136,16 @@ export function InputCanvas({ value, onChange, label, unit, max, onSwipeLeft, on
     }
   }, [label, value, maxDigits]);
 
-  const handleStart = (clientY: number, clientX: number, touchId?: number) => {
-    // Initialize audio context on first touch (required for iOS)
-    initAudioContext();
+  const handleStart = async (clientY: number, clientX: number, touchId?: number) => {
+    // Initialize and resume audio context on first touch (required for iOS)
+    const ctx = initAudioContext();
+    if (ctx && ctx.state === 'suspended') {
+      try {
+        await ctx.resume();
+      } catch (e) {
+        console.warn('Could not resume AudioContext:', e);
+      }
+    }
     
     setIsDragging(true);
     startYRef.current = clientY;
@@ -394,26 +416,19 @@ export function InputCanvas({ value, onChange, label, unit, max, onSwipeLeft, on
           overscrollBehavior: 'none'
         }}
         onMouseDown={(e) => {
-          e.preventDefault();
           handleStart(e.clientY, e.clientX);
         }}
         onTouchStart={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
           const touch = e.touches[0];
           handleStart(touch.clientY, touch.clientX, touch.identifier);
         }}
         onTouchMove={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
           const touch = Array.from(e.touches).find(t => t.identifier === touchIdRef.current);
           if (touch) {
             handleMove(touch.clientY, touch.clientX, touch.identifier);
           }
         }}
         onTouchEnd={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
           const touch = Array.from(e.changedTouches).find(t => t.identifier === touchIdRef.current);
           if (touch) {
             handleEnd(touch.identifier);
