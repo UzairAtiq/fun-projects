@@ -108,6 +108,11 @@ export function InputCanvas({ value, onChange, label, unit, max, onSwipeLeft, on
         const enteredDigits = newDigits.filter(d => d !== null);
         const newValue = enteredDigits.length > 0 ? parseInt(enteredDigits.join('')) : 0;
         onChange(newValue);
+        
+        // Haptic feedback when slider appears
+        if (navigator.vibrate) {
+          navigator.vibrate(5);
+        }
       }
     }
 
@@ -408,13 +413,13 @@ export function InputCanvas({ value, onChange, label, unit, max, onSwipeLeft, on
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
             transition={{ duration: 0.2 }}
-            style={{ height: '200px', width: '80px' }}
+            style={{ height: '250px', width: '100px' }}
           >
             {/* Container for all numbers 0-9 with vertical scroll effect */}
             <motion.div
               className="relative flex flex-col items-center"
               animate={{
-                y: `calc(50% - ${currentDigit * 40}px)`,
+                y: `calc(50% - ${currentDigit * 50}px)`,
               }}
               transition={{
                 type: 'spring',
@@ -422,7 +427,7 @@ export function InputCanvas({ value, onChange, label, unit, max, onSwipeLeft, on
                 damping: 30,
               }}
               style={{
-                gap: '12px',
+                gap: '16px',
               }}
             >
               {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => {
@@ -434,7 +439,7 @@ export function InputCanvas({ value, onChange, label, unit, max, onSwipeLeft, on
                     key={num}
                     className="font-bold"
                     animate={{
-                      fontSize: isSelected ? '28px' : distance === 1 ? '20px' : distance === 2 ? '14px' : '11px',
+                      fontSize: isSelected ? '40px' : distance === 1 ? '28px' : distance === 2 ? '20px' : '16px',
                       opacity: distance === 0 ? 1 : distance === 1 ? 0.6 : distance === 2 ? 0.3 : 0.15,
                       scale: isSelected ? 1.15 : 1,
                     }}
