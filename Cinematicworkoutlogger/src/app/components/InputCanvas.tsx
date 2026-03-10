@@ -21,6 +21,7 @@ export function InputCanvas({ value, onChange, label, unit, max, onSwipeLeft, on
   const [hasInputStarted, setHasInputStarted] = useState(false);
   
   const [isDragging, setIsDragging] = useState(false);
+  const [showSlider, setShowSlider] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const startYRef = useRef(0);
   const startDigitRef = useRef(0);
@@ -32,11 +33,21 @@ export function InputCanvas({ value, onChange, label, unit, max, onSwipeLeft, on
   const y = useMotionValue(0);
   const opacity = useTransform(y, [-100, 0, 100], [0.5, 1, 0.5]);
 
-  // Update digits when value changes externally (e.g., from swipe left reset)
+  // Initialize digits from value prop and update when value changes
   useEffect(() => {
     if (value === 0 && !hasInputStarted) {
       setDigits(Array(maxDigits).fill(null));
       setCurrentDigitIndex(0);
+    } else if (value > 0) {
+      // Populate digits from existing value (for when navigating between screens)
+      const valueStr = value.toString();
+      const newDigits = Array(maxDigits).fill(null);
+      for (let i = 0; i < valueStr.length && i < maxDigits; i++) {
+        newDigits[i] = parseInt(valueStr[i]);
+      }
+      setDigits(newDigits);
+      setHasInputStarted(true);
+      setCurrentDigitIndex(Math.min(valueStr.length, maxDigits - 1));
     }
   }, [value, maxDigits, hasInputStarted]);
 
@@ -62,6 +73,11 @@ export function InputCanvas({ value, onChange, label, unit, max, onSwipeLeft, on
     // Detect if this is a horizontal swipe early on
     if (!isHorizontalSwipeRef.current && (Math.abs(deltaX) > 30 || Math.abs(deltaY) > 30)) {
       isHorizontalSwipeRef.current = Math.abs(deltaX) > Math.abs(deltaY);
+    }
+
+    // Show slider only when vertical movement is detected
+    if (!showSlider && Math.abs(deltaY) > 20 && !isHorizontalSwipeRef.current) {
+      setShowSlider(true);
     }
 
     // If horizontal swipe detected, ignore vertical movement
@@ -165,6 +181,7 @@ export function InputCanvas({ value, onChange, label, unit, max, onSwipeLeft, on
   const handleEnd = (touchId?: number) => {
     if (touchId !== undefined && touchIdRef.current !== touchId) return;
     setIsDragging(false);
+    setShowSlider(false);
     y.set(0);
     touchIdRef.current = null;
     
@@ -225,13 +242,13 @@ export function InputCanvas({ value, onChange, label, unit, max, onSwipeLeft, on
         <button
           onClick={onBack}
           disabled={!canGoBack}
-          className={`p-1.5 sm:p-2 transition-all ${
+          className={`p-2 sm:p-2.5 transition-all ${
             canGoBack
               ? 'text-[#00FFA3] hover:text-[#00FFA3]/80 cursor-pointer'
               : 'text-white/20 cursor-not-allowed'
           }`}
         >
-          <svg width="18" height="18" className="sm:w-5 sm:h-5" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg width="28" height="28" className="sm:w-8 sm:h-8" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </button>
@@ -254,13 +271,13 @@ export function InputCanvas({ value, onChange, label, unit, max, onSwipeLeft, on
             }
           }}
           disabled={!canGoForward || !digits.some(d => d !== null)}
-          className={`p-1.5 sm:p-2 transition-all ${
+          className={`p-2 sm:p-2.5 transition-all ${
             canGoForward && digits.some(d => d !== null)
               ? 'text-[#00FFA3] hover:text-[#00FFA3]/80 cursor-pointer'
               : 'text-white/20 cursor-not-allowed'
           }`}
         >
-          <svg width="18" height="18" className="sm:w-5 sm:h-5" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg width="28" height="28" className="sm:w-8 sm:h-8" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M7.5 15L12.5 10L7.5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </button>
@@ -353,7 +370,7 @@ export function InputCanvas({ value, onChange, label, unit, max, onSwipeLeft, on
         )}
 
         {/* Number Slider (0-9 for current digit) */}
-        {isDragging && (
+        {isDragging && showSlider && (
           <motion.div
             className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 overflow-hidden"
             initial={{ opacity: 0, scale: 0.9 }}
