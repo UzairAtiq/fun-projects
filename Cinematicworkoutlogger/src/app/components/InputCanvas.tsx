@@ -1,82 +1,10 @@
-import { useState, useRef, useEffect } from 'react';
-import { motion, useMotionValue, useTransform } from 'motion/react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 
-// Global audio context for haptic feedback (reuse for better performance)
-let audioContext: AudioContext | null = null;
-
-// Initialize audio context on first user interaction (required for iOS)
-const initAudioContext = () => {
-  if (!audioContext) {
-    try {
-      audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-    } catch (e) {
-      console.warn('AudioContext not supported');
-    }
-  }
-  return audioContext;
-};
-
-// Haptic feedback helper that works across platforms
-const triggerHaptic = async (type: 'light' | 'medium' | 'heavy' = 'light') => {
-  // 1. Try Vibration API (works on Chrome/Android)
+// Lightweight haptic feedback (optimized for performance)
+const triggerHaptic = (type: 'light' | 'medium' | 'heavy' = 'light') => {
   if (navigator.vibrate) {
-    const patterns = {
-      light: 10,
-      medium: 20,
-      heavy: 30
-    };
+    const patterns = { light: 10, medium: 20, heavy: 30 };
     navigator.vibrate(patterns[type]);
-    return; // Exit early if vibration worked
-  }
-  
-  // 2. Try Haptic Feedback API (experimental, some PWAs)
-  if ('vibrate' in navigator || 'haptics' in navigator) {
-    try {
-      const duration = type === 'heavy' ? 30 : type === 'medium' ? 20 : 10;
-      (navigator as any).vibrate?.(duration);
-      return;
-    } catch (e) {
-      // Continue to audio fallback
-    }
-  }
-  
-  // 3. Audio fallback for iOS (no vibration available)
-  try {
-    const ctx = initAudioContext();
-    if (!ctx) return;
-    
-    // Resume audio context if suspended (iOS requirement)
-    if (ctx.state === 'suspended') {
-      await ctx.resume();
-    }
-    
-    const oscillator = ctx.createOscillator();
-    const gainNode = ctx.createGain();
-    
-    oscillator.connect(gainNode);
-    gainNode.connect(ctx.destination);
-    
-    // Sharp click sounds that mimic keyboard haptics
-    const frequencies = {
-      light: 1200,
-      medium: 800,
-      heavy: 400
-    };
-    
-    oscillator.frequency.value = frequencies[type];
-    oscillator.type = 'sine';
-    
-    const now = ctx.currentTime;
-    const duration = 0.02; // Very short for crisp feedback
-    const volume = type === 'heavy' ? 0.25 : type === 'medium' ? 0.2 : 0.15;
-    
-    gainNode.gain.setValueAtTime(volume, now);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, now + duration);
-    
-    oscillator.start(now);
-    oscillator.stop(now + duration);
-  } catch (e) {
-    // Silent fail if audio context not available
   }
 };
 
@@ -96,22 +24,23 @@ interface InputCanvasProps {
 export function InputCanvas({ value, onChange, label, unit, max, onSwipeLeft, onComplete, onBack, canGoBack, canGoForward }: InputCanvasProps) {
   const maxDigits = label === 'weight' ? 3 : 2;
   const [currentDigitIndex, setCurrentDigitIndex] = useState(0);
-  const [digits, setDigits] = useState<number[]>(Array(maxDigits).fill(null));
+  const [digits, setDigits] = useState<(number | null)[]>(Array(maxDigits).fill(null));
   const [hasInputStarted, setHasInputStarted] = useState(false);
   
   const [isDragging, setIsDragging] = useState(false);
   const [showSlider, setShowSlider] = useState(false);
+  const [currentDigit, setCurrentDigit] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
+  const sliderRef = useRef<HTMLDivElement>(null);
   const startYRef = useRef(0);
   const startDigitRef = useRef(0);
   const startXRef = useRef(0);
   const touchIdRef = useRef<number | null>(null);
   const digitWasModifiedRef = useRef(false);
   const isHorizontalSwipeRef = useRef(false);
-  const initializedRef = useRef(false);
-
-  const y = useMotionValue(0);
-  const opacity = useTransform(y, [-100, 0, 100], [0.5, 1, 0.5]);
+  const initializedRef = useRef<string | null>(null);
+  const rafIdRef = useRef<number | null>(null);
+  const lastUpdateTimeRef = useRef(0);
 
   // Initialize digits from value prop only once when component mounts or label changes
   useEffect(() => {
@@ -123,7 +52,6 @@ export function InputCanvas({ value, onChange, label, unit, max, onSwipeLeft, on
         setCurrentDigitIndex(0);
         setHasInputStarted(false);
       } else if (value > 0) {
-        // Populate digits from existing value (for when navigating between screens)
         const valueStr = value.toString();
         const newDigits = Array(maxDigits).fill(null);
         for (let i = 0; i < valueStr.length && i < maxDigits; i++) {
@@ -136,220 +64,199 @@ export function InputCanvas({ value, onChange, label, unit, max, onSwipeLeft, on
     }
   }, [label, value, maxDigits]);
 
-  const handleStart = async (clientY: number, clientX: number, touchId?: number) => {
-    // Initialize and resume audio context on first touch (required for iOS)
-    const ctx = initAudioContext();
-    if (ctx && ctx.state === 'suspended') {
-      try {
-        await ctx.resume();
-      } catch (e) {
-        console.warn('Could not resume AudioContext:', e);
+  // Cleanup RAF on unmount
+  useEffect(() => {
+    return () => {
+      if (rafIdRef.current) {
+        cancelAnimationFrame(rafIdRef.current);
       }
-    }
-    
+    };
+  }, []);
+
+  const handleStart = useCallback((clientY: number, clientX: number, touchId?: number) => {
     setIsDragging(true);
     startYRef.current = clientY;
     startXRef.current = clientX;
     startDigitRef.current = digits[currentDigitIndex] ?? 0;
+    setCurrentDigit(digits[currentDigitIndex] ?? 0);
     digitWasModifiedRef.current = false;
     isHorizontalSwipeRef.current = false;
     if (touchId !== undefined) {
       touchIdRef.current = touchId;
     }
-  };
+  }, [digits, currentDigitIndex]);
 
-  const handleMove = (clientY: number, clientX: number, touchId?: number) => {
+  const handleMove = useCallback((clientY: number, clientX: number, touchId?: number) => {
     if (!isDragging) return;
     if (touchId !== undefined && touchIdRef.current !== touchId) return;
 
-    const deltaY = startYRef.current - clientY;
-    const deltaX = clientX - startXRef.current;
-
-    // Detect if this is a horizontal swipe early on
-    if (!isHorizontalSwipeRef.current && (Math.abs(deltaX) > 30 || Math.abs(deltaY) > 30)) {
-      isHorizontalSwipeRef.current = Math.abs(deltaX) > Math.abs(deltaY);
-    }
-
-    // Show slider only when vertical movement is detected
-    if (!showSlider && Math.abs(deltaY) > 20 && !isHorizontalSwipeRef.current) {
-      setShowSlider(true);
+    // Throttle with RAF for smooth 60fps performance
+    if (rafIdRef.current) return;
+    
+    rafIdRef.current = requestAnimationFrame(() => {
+      rafIdRef.current = null;
       
-      // Calculate initial digit based on finger position in the container
-      if (containerRef.current) {
-        const rect = containerRef.current.getBoundingClientRect();
-        const relativeY = startYRef.current - rect.top;
-        const containerHeight = rect.height;
-        
-        // Map Y position (0 to containerHeight) to digit (0 to 9)
-        // Top = 0, Bottom = 9, middle = 5, etc.
-        const normalizedPosition = Math.max(0, Math.min(1, relativeY / containerHeight));
-        const calculatedDigit = Math.round(normalizedPosition * 9);
-        
-        // Set this as the starting digit
-        const newDigits = [...digits];
-        newDigits[currentDigitIndex] = calculatedDigit;
-        setDigits(newDigits);
-        setHasInputStarted(true);
-        digitWasModifiedRef.current = true;
-        startDigitRef.current = calculatedDigit;
-        
-        // Update value
-        const enteredDigits = newDigits.filter(d => d !== null);
-        const newValue = enteredDigits.length > 0 ? parseInt(enteredDigits.join('')) : 0;
-        onChange(newValue);
-        
-        // Haptic feedback when slider appears
-        triggerHaptic('light');
-      }
-    }
+      const deltaY = startYRef.current - clientY;
+      const deltaX = clientX - startXRef.current;
 
-    // If horizontal swipe detected, ignore vertical movement
-    if (isHorizontalSwipeRef.current) {
-      // Check for swipe left gesture (remove last digit)
-      if (deltaX < -100) {
-        setIsDragging(false);
-        touchIdRef.current = null;
+      // Detect horizontal swipe early
+      if (!isHorizontalSwipeRef.current && (Math.abs(deltaX) > 30 || Math.abs(deltaY) > 30)) {
+        isHorizontalSwipeRef.current = Math.abs(deltaX) > Math.abs(deltaY);
+      }
+
+      // Show slider on vertical movement
+      if (!showSlider && Math.abs(deltaY) > 20 && !isHorizontalSwipeRef.current) {
+        setShowSlider(true);
         
-        // Find the last non-null digit index
-        let lastDigitIndex = -1;
-        for (let i = digits.length - 1; i >= 0; i--) {
-          if (digits[i] !== null) {
-            lastDigitIndex = i;
-            break;
+        // Calculate initial digit from finger position
+        if (containerRef.current) {
+          const rect = containerRef.current.getBoundingClientRect();
+          const relativeY = startYRef.current - rect.top;
+          const containerHeight = rect.height;
+          const normalizedPosition = Math.max(0, Math.min(1, relativeY / containerHeight));
+          const calculatedDigit = Math.round(normalizedPosition * 9);
+          
+          const newDigits = [...digits];
+          newDigits[currentDigitIndex] = calculatedDigit;
+          setDigits(newDigits);
+          setCurrentDigit(calculatedDigit);
+          setHasInputStarted(true);
+          digitWasModifiedRef.current = true;
+          startDigitRef.current = calculatedDigit;
+          
+          const enteredDigits = newDigits.filter(d => d !== null);
+          const newValue = enteredDigits.length > 0 ? parseInt(enteredDigits.join('')) : 0;
+          onChange(newValue);
+          triggerHaptic('light');
+        }
+      }
+
+      // Handle horizontal swipes
+      if (isHorizontalSwipeRef.current) {
+        // Swipe left - remove last digit
+        if (deltaX < -100) {
+          setIsDragging(false);
+          setShowSlider(false);
+          touchIdRef.current = null;
+          
+          let lastDigitIndex = -1;
+          for (let i = digits.length - 1; i >= 0; i--) {
+            if (digits[i] !== null) {
+              lastDigitIndex = i;
+              break;
+            }
           }
+          
+          if (lastDigitIndex >= 0) {
+            const newDigits = [...digits];
+            newDigits[lastDigitIndex] = null;
+            setDigits(newDigits);
+            setCurrentDigitIndex(lastDigitIndex);
+            
+            const enteredDigits = newDigits.filter(d => d !== null);
+            const newValue = enteredDigits.length > 0 ? parseInt(enteredDigits.join('')) : 0;
+            onChange(newValue);
+            
+            if (enteredDigits.length === 0) {
+              setHasInputStarted(false);
+              setCurrentDigitIndex(0);
+            }
+            triggerHaptic('medium');
+          }
+          return;
         }
         
-        // If there's a digit to remove
-        if (lastDigitIndex >= 0) {
+        // Swipe right - complete
+        if (deltaX > 100) {
+          const hasAtLeastOneDigit = digits.some(d => d !== null);
+          if (hasAtLeastOneDigit && onComplete) {
+            const enteredDigits = digits.filter(d => d !== null);
+            const finalValue = enteredDigits.length > 0 ? parseInt(enteredDigits.join('')) : 0;
+            onChange(finalValue);
+            setIsDragging(false);
+            setShowSlider(false);
+            touchIdRef.current = null;
+            triggerHaptic('heavy');
+            setTimeout(() => onComplete(), 100);
+          }
+          return;
+        }
+      }
+
+      // Process vertical movement for digit selection
+      if (!isHorizontalSwipeRef.current && showSlider) {
+        const sensitivity = 0.03;
+        const newDigit = Math.round(startDigitRef.current + deltaY * sensitivity);
+        const clampedDigit = Math.max(0, Math.min(9, newDigit));
+        
+        if (clampedDigit !== currentDigit) {
+          setCurrentDigit(clampedDigit);
+          setHasInputStarted(true);
+          digitWasModifiedRef.current = true;
+          
           const newDigits = [...digits];
-          newDigits[lastDigitIndex] = null;
+          newDigits[currentDigitIndex] = clampedDigit;
           setDigits(newDigits);
           
-          // Move to the previous digit position
-          setCurrentDigitIndex(lastDigitIndex);
-          
-          // Update value with remaining digits
           const enteredDigits = newDigits.filter(d => d !== null);
           const newValue = enteredDigits.length > 0 ? parseInt(enteredDigits.join('')) : 0;
           onChange(newValue);
           
-          // Check if all digits are cleared
-          if (enteredDigits.length === 0) {
-            setHasInputStarted(false);
-            setCurrentDigitIndex(0);
+          // Throttle haptic feedback
+          const now = Date.now();
+          if (now - lastUpdateTimeRef.current > 50) {
+            triggerHaptic('light');
+            lastUpdateTimeRef.current = now;
           }
-          
-          // Vibration feedback
-          triggerHaptic('medium');
         }
-        
-        return;
       }
-      
-      // Check for swipe right gesture (advance to next screen if at least 1 digit)
-      if (deltaX > 100) {
-        const hasAtLeastOneDigit = digits.some(d => d !== null);
-        if (hasAtLeastOneDigit && onComplete) {
-          // Calculate final value from entered digits only
-          const enteredDigits = digits.filter(d => d !== null);
-          const finalValue = enteredDigits.length > 0 ? parseInt(enteredDigits.join('')) : 0;
-          onChange(finalValue);
-          setIsDragging(false);
-          touchIdRef.current = null;
-          
-          // Trigger completion
-          triggerHaptic('heavy');
-          
-          setTimeout(() => {
-            onComplete();
-          }, 100);
-        }
-        return;
-      }
-    }
+    });
+  }, [isDragging, showSlider, digits, currentDigitIndex, currentDigit, onChange, onComplete]);
 
-    // Only process vertical movement if not in horizontal swipe mode
-    if (isHorizontalSwipeRef.current) return;
-
-    const sensitivity = 0.03; // Reduced by 40% from 0.05
-    const newDigit = Math.round(startDigitRef.current + deltaY * sensitivity);
-    const clampedDigit = Math.max(0, Math.min(9, newDigit));
-    
-    const currentDigit = digits[currentDigitIndex] ?? 0;
-    if (clampedDigit !== currentDigit) {
-      setHasInputStarted(true);
-      digitWasModifiedRef.current = true;
-      const newDigits = [...digits];
-      newDigits[currentDigitIndex] = clampedDigit;
-      setDigits(newDigits);
-      
-      // Convert only entered digits to number (no padding with zeros)
-      const enteredDigits = newDigits.filter(d => d !== null);
-      const newValue = enteredDigits.length > 0 ? parseInt(enteredDigits.join('')) : 0;
-      onChange(newValue);
-      
-      // Play tick sound effect (simulated with vibration on mobile)
-      triggerHaptic('light');
-    }
-
-    y.set(deltaY);
-  };
-
-  const handleEnd = (touchId?: number) => {
+  const handleEnd = useCallback((touchId?: number) => {
     if (touchId !== undefined && touchIdRef.current !== touchId) return;
     setIsDragging(false);
     setShowSlider(false);
-    y.set(0);
     touchIdRef.current = null;
     
-    // Auto-advance to next digit if current digit was modified and not at the end
-    if (currentDigitIndex < maxDigits - 1 && digitWasModifiedRef.current) {
-      setTimeout(() => {
-        setCurrentDigitIndex(prev => prev + 1);
-      }, 200);
+    if (rafIdRef.current) {
+      cancelAnimationFrame(rafIdRef.current);
+      rafIdRef.current = null;
     }
-  };
+    
+    // Auto-advance to next digit
+    if (currentDigitIndex < maxDigits - 1 && digitWasModifiedRef.current) {
+      setTimeout(() => setCurrentDigitIndex(prev => prev + 1), 200);
+    }
+  }, [currentDigitIndex, maxDigits]);
 
   // Mouse events
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      handleMove(e.clientY, e.clientX);
-    };
+    if (!isDragging) return;
+    
+    const handleMouseMove = (e: MouseEvent) => handleMove(e.clientY, e.clientX);
+    const handleMouseUp = () => handleEnd();
 
-    const handleMouseUp = () => {
-      handleEnd();
-    };
-
-    if (isDragging) {
-      window.addEventListener('mousemove', handleMouseMove);
-      window.addEventListener('mouseup', handleMouseUp);
-    }
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
+    window.addEventListener('mouseup', handleMouseUp, { passive: true });
 
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [isDragging, digits, currentDigitIndex]);
+  }, [isDragging, handleMove, handleEnd]);
 
   // Prevent body scroll on mobile
   useEffect(() => {
     const preventScroll = (e: TouchEvent) => {
-      if (containerRef.current && containerRef.current.contains(e.target as Node)) {
+      if (containerRef.current?.contains(e.target as Node)) {
         e.preventDefault();
       }
     };
 
-    document.body.addEventListener('touchmove', preventScroll, { passive: false });
     document.addEventListener('touchmove', preventScroll, { passive: false });
-
-    return () => {
-      document.body.removeEventListener('touchmove', preventScroll);
-      document.removeEventListener('touchmove', preventScroll);
-    };
+    return () => document.removeEventListener('touchmove', preventScroll);
   }, []);
-
-  // Get current digit value
-  const currentDigit = digits[currentDigitIndex] ?? 0;
 
   return (
     <div className="flex flex-col items-center justify-center h-full">
@@ -442,25 +349,27 @@ export function InputCanvas({ value, onChange, label, unit, max, onSwipeLeft, on
           <div className="flex items-center gap-1">
             {digits.map((digit, index) => (
               digit !== null ? (
-                <motion.span
+                <span
                   key={index}
                   onClick={(e) => {
                     e.stopPropagation();
                     setCurrentDigitIndex(index);
                   }}
-                  className={`text-6xl font-bold leading-none transition-all duration-200 cursor-pointer ${
+                  className={`text-6xl font-bold leading-none cursor-pointer transition-all duration-200 ${
                     index === currentDigitIndex
                       ? 'text-[#00FFA3] scale-110'
                       : 'text-white/50 hover:text-white/70'
                   }`}
                   style={{
                     textShadow: index === currentDigitIndex && isDragging 
-                      ? '0 0 30px rgba(0,255,163,0.5)' 
-                      : 'none'
+                      ? '0 0 20px rgba(0,255,163,0.6)' 
+                      : 'none',
+                    transform: index === currentDigitIndex ? 'scale(1.1)' : 'scale(1)',
+                    willChange: 'transform'
                   }}
                 >
                   {digit}
-                </motion.span>
+                </span>
               ) : null
             ))}
           </div>
@@ -468,10 +377,10 @@ export function InputCanvas({ value, onChange, label, unit, max, onSwipeLeft, on
             {digits.map((_, index) => (
               <div
                 key={index}
-                className={`w-2 h-2 rounded-full transition-all ${
+                className={`h-2 rounded-full transition-all duration-200 ${
                   index === currentDigitIndex
                     ? 'bg-[#00FFA3] w-6'
-                    : 'bg-white/20'
+                    : 'bg-white/20 w-2'
                 }`}
               />
             ))}
@@ -479,29 +388,25 @@ export function InputCanvas({ value, onChange, label, unit, max, onSwipeLeft, on
         </div>
         )}
 
-        {/* Number Slider (0-9 for current digit) */}
-        {isDragging && showSlider && (
-          <motion.div
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 overflow-hidden"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            transition={{ duration: 0.2 }}
-            style={{ height: '250px', width: '100px' }}
+        {/* Optimized Number Slider with CSS transforms */}
+        {showSlider && (
+          <div
+            ref={sliderRef}
+            className="absolute top-1/2 left-1/2 overflow-hidden"
+            style={{
+              width: '100px',
+              height: '250px',
+              transform: 'translate(-50%, -50%)',
+              willChange: 'contents'
+            }}
           >
-            {/* Container for all numbers 0-9 with vertical scroll effect */}
-            <motion.div
+            <div
               className="relative flex flex-col items-center"
-              animate={{
-                y: `calc(50% - ${currentDigit * 50}px)`,
-              }}
-              transition={{
-                type: 'spring',
-                stiffness: 300,
-                damping: 30,
-              }}
               style={{
+                transform: `translate3d(0, calc(125px - ${currentDigit * 50}px), 0)`,
+                transition: 'transform 0.15s ease-out',
                 gap: '16px',
+                willChange: 'transform'
               }}
             >
               {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => {
@@ -509,36 +414,28 @@ export function InputCanvas({ value, onChange, label, unit, max, onSwipeLeft, on
                 const isSelected = num === currentDigit;
                 
                 return (
-                  <motion.span
+                  <span
                     key={num}
                     className="font-bold"
-                    animate={{
+                    style={{
                       fontSize: isSelected ? '40px' : distance === 1 ? '28px' : distance === 2 ? '20px' : '16px',
                       opacity: distance === 0 ? 1 : distance === 1 ? 0.6 : distance === 2 ? 0.3 : 0.15,
-                      scale: isSelected ? 1.15 : 1,
-                    }}
-                    transition={{
-                      duration: 0.15,
-                      ease: 'easeOut',
-                    }}
-                    style={{
+                      transform: isSelected ? 'scale(1.15)' : 'scale(1)',
+                      transition: 'all 0.15s ease-out',
                       fontFamily: '"SF Mono", "Menlo", monospace',
                       color: isSelected ? '#00FFA3' : distance <= 2 ? '#ffffff' : '#ffffff50',
-                      textShadow: isSelected 
-                        ? '0 0 40px rgba(0,255,163,0.9), 0 0 80px rgba(0,255,163,0.5), 0 4px 20px rgba(0,0,0,0.5)' 
-                        : distance === 1 
-                          ? '0 2px 10px rgba(0,0,0,0.3)' 
-                          : 'none',
+                      textShadow: isSelected ? '0 0 20px rgba(0,255,163,0.8)' : 'none',
                       lineHeight: 1,
                       fontWeight: isSelected ? 900 : 700,
+                      willChange: 'transform, opacity'
                     }}
                   >
                     {num}
-                  </motion.span>
+                  </span>
                 );
               })}
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
         )}
       </div>
     </div>
