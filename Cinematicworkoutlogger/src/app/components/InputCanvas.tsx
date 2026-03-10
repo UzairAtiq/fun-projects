@@ -29,27 +29,33 @@ export function InputCanvas({ value, onChange, label, unit, max, onSwipeLeft, on
   const touchIdRef = useRef<number | null>(null);
   const digitWasModifiedRef = useRef(false);
   const isHorizontalSwipeRef = useRef(false);
+  const initializedRef = useRef(false);
 
   const y = useMotionValue(0);
   const opacity = useTransform(y, [-100, 0, 100], [0.5, 1, 0.5]);
 
-  // Initialize digits from value prop and update when value changes
+  // Initialize digits from value prop only once when component mounts or label changes
   useEffect(() => {
-    if (value === 0 && !hasInputStarted) {
-      setDigits(Array(maxDigits).fill(null));
-      setCurrentDigitIndex(0);
-    } else if (value > 0) {
-      // Populate digits from existing value (for when navigating between screens)
-      const valueStr = value.toString();
-      const newDigits = Array(maxDigits).fill(null);
-      for (let i = 0; i < valueStr.length && i < maxDigits; i++) {
-        newDigits[i] = parseInt(valueStr[i]);
+    if (!initializedRef.current || label !== initializedRef.current) {
+      initializedRef.current = label;
+      
+      if (value === 0) {
+        setDigits(Array(maxDigits).fill(null));
+        setCurrentDigitIndex(0);
+        setHasInputStarted(false);
+      } else if (value > 0) {
+        // Populate digits from existing value (for when navigating between screens)
+        const valueStr = value.toString();
+        const newDigits = Array(maxDigits).fill(null);
+        for (let i = 0; i < valueStr.length && i < maxDigits; i++) {
+          newDigits[i] = parseInt(valueStr[i]);
+        }
+        setDigits(newDigits);
+        setHasInputStarted(true);
+        setCurrentDigitIndex(Math.min(valueStr.length, maxDigits - 1));
       }
-      setDigits(newDigits);
-      setHasInputStarted(true);
-      setCurrentDigitIndex(Math.min(valueStr.length, maxDigits - 1));
     }
-  }, [value, maxDigits, hasInputStarted]);
+  }, [label, value, maxDigits]);
 
   const handleStart = (clientY: number, clientX: number, touchId?: number) => {
     setIsDragging(true);
