@@ -184,30 +184,47 @@ export function InputCanvas({ value, onChange, label, unit, max, onSwipeLeft, on
     };
   }, [isDragging, digits, currentDigitIndex]);
 
+  // Prevent body scroll on mobile
+  useEffect(() => {
+    const preventScroll = (e: TouchEvent) => {
+      if (containerRef.current && containerRef.current.contains(e.target as Node)) {
+        e.preventDefault();
+      }
+    };
+
+    document.body.addEventListener('touchmove', preventScroll, { passive: false });
+    document.addEventListener('touchmove', preventScroll, { passive: false });
+
+    return () => {
+      document.body.removeEventListener('touchmove', preventScroll);
+      document.removeEventListener('touchmove', preventScroll);
+    };
+  }, []);
+
   // Get current digit value
   const currentDigit = digits[currentDigitIndex] ?? 0;
 
   return (
     <div className="flex flex-col items-center justify-center h-full">
       {/* Input Progress Indicator with Navigation */}
-      <div className="absolute top-8 left-1/2 -translate-x-1/2 flex items-center gap-4">
+      <div className="absolute top-4 sm:top-8 left-1/2 -translate-x-1/2 flex items-center gap-2 sm:gap-4">
         {/* Back Button */}
         <button
           onClick={onBack}
           disabled={!canGoBack}
-          className={`p-2 transition-all ${
+          className={`p-1.5 sm:p-2 transition-all ${
             canGoBack
               ? 'text-[#00FFA3] hover:text-[#00FFA3]/80 cursor-pointer'
               : 'text-white/20 cursor-not-allowed'
           }`}
         >
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg width="18" height="18" className="sm:w-5 sm:h-5" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </button>
 
         {/* Progress Indicator */}
-        <div className="flex items-center gap-2 text-xs tracking-widest text-teal-400/60 uppercase">
+        <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs tracking-widest text-teal-400/60 uppercase">
           <span className={label === 'weight' ? 'text-[#00FFA3]' : ''}>Weight</span>
           <span>·</span>
           <span className={label === 'reps' ? 'text-[#00FFA3]' : ''}>Reps</span>
@@ -224,13 +241,13 @@ export function InputCanvas({ value, onChange, label, unit, max, onSwipeLeft, on
             }
           }}
           disabled={!canGoForward || !digits.some(d => d !== null)}
-          className={`p-2 transition-all ${
+          className={`p-1.5 sm:p-2 transition-all ${
             canGoForward && digits.some(d => d !== null)
               ? 'text-[#00FFA3] hover:text-[#00FFA3]/80 cursor-pointer'
               : 'text-white/20 cursor-not-allowed'
           }`}
         >
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg width="18" height="18" className="sm:w-5 sm:h-5" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M7.5 15L12.5 10L7.5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </button>
@@ -239,23 +256,39 @@ export function InputCanvas({ value, onChange, label, unit, max, onSwipeLeft, on
       {/* Main Drag Zone */}
       <div
         ref={containerRef}
-        className={`relative w-[126%] max-w-2xl h-[784px] rounded-lg transition-all duration-300 ${
+        className={`relative w-[95%] sm:w-[90%] lg:w-[126%] max-w-2xl h-[60vh] sm:h-[70vh] lg:h-[784px] rounded-lg transition-all duration-300 ${
           isDragging
             ? 'shadow-[0_0_40px_rgba(0,255,163,0.3),inset_0_0_30px_rgba(0,255,163,0.1)] border-2 border-[#00FFA3]'
             : 'shadow-[0_0_20px_rgba(0,255,163,0.15)] border border-[#00FFA3]/30'
         }`}
-        onMouseDown={(e) => handleStart(e.clientY, e.clientX)}
+        style={{
+          touchAction: 'none',
+          WebkitTouchCallout: 'none',
+          WebkitUserSelect: 'none',
+          userSelect: 'none',
+          overscrollBehavior: 'none'
+        }}
+        onMouseDown={(e) => {
+          e.preventDefault();
+          handleStart(e.clientY, e.clientX);
+        }}
         onTouchStart={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
           const touch = e.touches[0];
           handleStart(touch.clientY, touch.clientX, touch.identifier);
         }}
         onTouchMove={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
           const touch = Array.from(e.touches).find(t => t.identifier === touchIdRef.current);
           if (touch) {
             handleMove(touch.clientY, touch.clientX, touch.identifier);
           }
         }}
         onTouchEnd={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
           const touch = Array.from(e.changedTouches).find(t => t.identifier === touchIdRef.current);
           if (touch) {
             handleEnd(touch.identifier);
