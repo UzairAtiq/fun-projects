@@ -408,13 +408,13 @@ export function InputCanvas({ value, onChange, label, unit, max, onSwipeLeft, on
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
             transition={{ duration: 0.2 }}
-            style={{ height: '250px', width: '100px' }}
+            style={{ height: '200px', width: '80px' }}
           >
             {/* Container for all numbers 0-9 with vertical scroll effect */}
             <motion.div
               className="relative flex flex-col items-center"
               animate={{
-                y: `calc(50% - ${currentDigit * 50}px)`,
+                y: `calc(50% - ${currentDigit * 40}px)`,
               }}
               transition={{
                 type: 'spring',
@@ -422,7 +422,7 @@ export function InputCanvas({ value, onChange, label, unit, max, onSwipeLeft, on
                 damping: 30,
               }}
               style={{
-                gap: '16px',
+                gap: '12px',
               }}
             >
               {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => {
@@ -434,7 +434,7 @@ export function InputCanvas({ value, onChange, label, unit, max, onSwipeLeft, on
                     key={num}
                     className="font-bold"
                     animate={{
-                      fontSize: isSelected ? '40px' : distance === 1 ? '28px' : distance === 2 ? '20px' : '16px',
+                      fontSize: isSelected ? '28px' : distance === 1 ? '20px' : distance === 2 ? '14px' : '11px',
                       opacity: distance === 0 ? 1 : distance === 1 ? 0.6 : distance === 2 ? 0.3 : 0.15,
                       scale: isSelected ? 1.15 : 1,
                     }}
@@ -443,6 +443,7 @@ export function InputCanvas({ value, onChange, label, unit, max, onSwipeLeft, on
                       ease: 'easeOut',
                     }}
                     style={{
+                      fontFamily: '"SF Mono", "Menlo", monospace',
                       color: isSelected ? '#00FFA3' : distance <= 2 ? '#ffffff' : '#ffffff50',
                       textShadow: isSelected 
                         ? '0 0 40px rgba(0,255,163,0.9), 0 0 80px rgba(0,255,163,0.5), 0 4px 20px rgba(0,0,0,0.5)' 
