@@ -8,24 +8,43 @@ interface InputCanvasProps {
   unit: string;
   max: number;
   onSwipeLeft?: () => void;
+  onComplete?: () => void;
+  onBack?: () => void;
+  canGoBack?: boolean;
+  canGoForward?: boolean;
 }
 
-export function InputCanvas({ value, onChange, label, unit, max, onSwipeLeft }: InputCanvasProps) {
+export function InputCanvas({ value, onChange, label, unit, max, onSwipeLeft, onComplete, onBack, canGoBack, canGoForward }: InputCanvasProps) {
+  const maxDigits = label === 'weight' ? 3 : 2;
+  const [currentDigitIndex, setCurrentDigitIndex] = useState(0);
+  const [digits, setDigits] = useState<number[]>(Array(maxDigits).fill(null));
+  const [hasInputStarted, setHasInputStarted] = useState(false);
+  
   const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const startYRef = useRef(0);
-  const startValueRef = useRef(0);
+  const startDigitRef = useRef(0);
   const startXRef = useRef(0);
   const touchIdRef = useRef<number | null>(null);
+  const digitWasModifiedRef = useRef(false);
 
   const y = useMotionValue(0);
   const opacity = useTransform(y, [-100, 0, 100], [0.5, 1, 0.5]);
+
+  // Update digits when value changes externally (e.g., from swipe left reset)
+  useEffect(() => {
+    if (value === 0 && !hasInputStarted) {
+      setDigits(Array(maxDigits).fill(null));
+      setCurrentDigitIndex(0);
+    }
+  }, [value, maxDigits, hasInputStarted]);
 
   const handleStart = (clientY: number, clientX: number, touchId?: number) => {
     setIsDragging(true);
     startYRef.current = clientY;
     startXRef.current = clientX;
-    startValueRef.current = value;
+    startDigitRef.current = digits[currentDigitIndex] ?? 0;
+    digitWasModifiedRef.current = false;
     if (touchId !== undefined) {
       touchIdRef.current = touchId;
     }
@@ -38,22 +57,89 @@ export function InputCanvas({ value, onChange, label, unit, max, onSwipeLeft }: 
     const deltaY = startYRef.current - clientY;
     const deltaX = clientX - startXRef.current;
 
-    // Check for swipe left gesture
+    // Check for swipe left gesture (remove last digit)
     if (Math.abs(deltaX) > 100 && Math.abs(deltaX) > Math.abs(deltaY) && deltaX < 0) {
-      if (onSwipeLeft) {
-        onSwipeLeft();
+      setIsDragging(false);
+      touchIdRef.current = null;
+      
+      // Find the last non-null digit index
+      let lastDigitIndex = -1;
+      for (let i = digits.length - 1; i >= 0; i--) {
+        if (digits[i] !== null) {
+          lastDigitIndex = i;
+          break;
+        }
+      }
+      
+      // If there's a digit to remove
+      if (lastDigitIndex >= 0) {
+        const newDigits = [...digits];
+        newDigits[lastDigitIndex] = null;
+        setDigits(newDigits);
+        
+        // Move to the previous digit position
+        setCurrentDigitIndex(lastDigitIndex);
+        
+        // Update value with remaining digits
+        const enteredDigits = newDigits.filter(d => d !== null);
+        const newValue = enteredDigits.length > 0 ? parseInt(enteredDigits.join('')) : 0;
+        onChange(newValue);
+        
+        // Check if all digits are cleared
+        if (enteredDigits.length === 0) {
+          setHasInputStarted(false);
+          setCurrentDigitIndex(0);
+        }
+        
+        // Vibration feedback
+        if (navigator.vibrate) {
+          navigator.vibrate([5, 30, 5]);
+        }
+      }
+      
+      return;
+    }
+
+    // Check for swipe right gesture (advance to next screen if at least 1 digit)
+    if (Math.abs(deltaX) > 100 && Math.abs(deltaX) > Math.abs(deltaY) && deltaX > 0) {
+      const hasAtLeastOneDigit = digits.some(d => d !== null);
+      if (hasAtLeastOneDigit && onComplete) {
+        // Calculate final value from entered digits only
+        const enteredDigits = digits.filter(d => d !== null);
+        const finalValue = enteredDigits.length > 0 ? parseInt(enteredDigits.join('')) : 0;
+        onChange(finalValue);
         setIsDragging(false);
         touchIdRef.current = null;
+        
+        // Trigger completion
+        if (navigator.vibrate) {
+          navigator.vibrate([10, 50, 10]);
+        }
+        
+        setTimeout(() => {
+          onComplete();
+        }, 100);
       }
       return;
     }
 
-    const sensitivity = 0.03;
-    const newValue = Math.round(startValueRef.current + deltaY * sensitivity);
-    const clampedValue = Math.max(0, Math.min(max, newValue));
+    const sensitivity = 0.05;
+    const newDigit = Math.round(startDigitRef.current + deltaY * sensitivity);
+    const clampedDigit = Math.max(0, Math.min(9, newDigit));
     
-    if (clampedValue !== value) {
-      onChange(clampedValue);
+    const currentDigit = digits[currentDigitIndex] ?? 0;
+    if (clampedDigit !== currentDigit) {
+      setHasInputStarted(true);
+      digitWasModifiedRef.current = true;
+      const newDigits = [...digits];
+      newDigits[currentDigitIndex] = clampedDigit;
+      setDigits(newDigits);
+      
+      // Convert only entered digits to number (no padding with zeros)
+      const enteredDigits = newDigits.filter(d => d !== null);
+      const newValue = enteredDigits.length > 0 ? parseInt(enteredDigits.join('')) : 0;
+      onChange(newValue);
+      
       // Play tick sound effect (simulated with vibration on mobile)
       if (navigator.vibrate) {
         navigator.vibrate(5);
@@ -68,6 +154,13 @@ export function InputCanvas({ value, onChange, label, unit, max, onSwipeLeft }: 
     setIsDragging(false);
     y.set(0);
     touchIdRef.current = null;
+    
+    // Auto-advance to next digit if current digit was modified and not at the end
+    if (currentDigitIndex < maxDigits - 1 && digitWasModifiedRef.current) {
+      setTimeout(() => {
+        setCurrentDigitIndex(prev => prev + 1);
+      }, 200);
+    }
   };
 
   // Mouse events
@@ -89,32 +182,64 @@ export function InputCanvas({ value, onChange, label, unit, max, onSwipeLeft }: 
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [isDragging, value]);
+  }, [isDragging, digits, currentDigitIndex]);
 
-  // Generate adjacent numbers
-  const adjacentNumbers = [];
-  for (let i = -3; i <= 3; i++) {
-    const num = value + i;
-    if (num >= 0 && num <= max) {
-      adjacentNumbers.push(num);
-    }
-  }
+  // Get current digit value
+  const currentDigit = digits[currentDigitIndex] ?? 0;
 
   return (
     <div className="flex flex-col items-center justify-center h-full">
-      {/* Input Progress Indicator */}
-      <div className="absolute top-8 left-1/2 -translate-x-1/2 flex items-center gap-2 text-xs tracking-widest text-teal-400/60 uppercase">
-        <span className={label === 'weight' ? 'text-[#00FFA3]' : ''}>Weight</span>
-        <span>·</span>
-        <span className={label === 'reps' ? 'text-[#00FFA3]' : ''}>Reps</span>
-        <span>·</span>
-        <span>Done</span>
+      {/* Input Progress Indicator with Navigation */}
+      <div className="absolute top-8 left-1/2 -translate-x-1/2 flex items-center gap-4">
+        {/* Back Button */}
+        <button
+          onClick={onBack}
+          disabled={!canGoBack}
+          className={`p-2 transition-all ${
+            canGoBack
+              ? 'text-[#00FFA3] hover:text-[#00FFA3]/80 cursor-pointer'
+              : 'text-white/20 cursor-not-allowed'
+          }`}
+        >
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </button>
+
+        {/* Progress Indicator */}
+        <div className="flex items-center gap-2 text-xs tracking-widest text-teal-400/60 uppercase">
+          <span className={label === 'weight' ? 'text-[#00FFA3]' : ''}>Weight</span>
+          <span>·</span>
+          <span className={label === 'reps' ? 'text-[#00FFA3]' : ''}>Reps</span>
+          <span>·</span>
+          <span>Done</span>
+        </div>
+
+        {/* Forward Button */}
+        <button
+          onClick={() => {
+            const hasAtLeastOneDigit = digits.some(d => d !== null);
+            if (hasAtLeastOneDigit && canGoForward && onComplete) {
+              onComplete();
+            }
+          }}
+          disabled={!canGoForward || !digits.some(d => d !== null)}
+          className={`p-2 transition-all ${
+            canGoForward && digits.some(d => d !== null)
+              ? 'text-[#00FFA3] hover:text-[#00FFA3]/80 cursor-pointer'
+              : 'text-white/20 cursor-not-allowed'
+          }`}
+        >
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M7.5 15L12.5 10L7.5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </button>
       </div>
 
       {/* Main Drag Zone */}
       <div
         ref={containerRef}
-        className={`relative w-[90%] max-w-md h-[400px] rounded-lg transition-all duration-300 ${
+        className={`relative w-[126%] max-w-2xl h-[784px] rounded-lg transition-all duration-300 ${
           isDragging
             ? 'shadow-[0_0_40px_rgba(0,255,163,0.3),inset_0_0_30px_rgba(0,255,163,0.1)] border-2 border-[#00FFA3]'
             : 'shadow-[0_0_20px_rgba(0,255,163,0.15)] border border-[#00FFA3]/30'
@@ -137,51 +262,110 @@ export function InputCanvas({ value, onChange, label, unit, max, onSwipeLeft }: 
           }
         }}
       >
-        {/* Large Rotated Digit Display */}
-        <motion.div
-          className="absolute left-8 top-1/2 -translate-y-1/2 flex items-center gap-4"
-          style={{ opacity }}
-        >
-          <div className="text-[120px] font-bold text-white leading-none tracking-tighter"
-               style={{ 
-                 writingMode: 'vertical-rl',
-                 textOrientation: 'mixed',
-                 transform: 'rotate(180deg)',
-                 textShadow: isDragging ? '0 0 30px rgba(0,255,163,0.5)' : 'none'
-               }}>
-            {value}
+        {/* Counter at Top of Box */}
+        {hasInputStarted && (
+        <div className="absolute top-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2">
+          <span className="text-xs text-[#00FFA3]/70 uppercase tracking-widest">{unit}</span>
+          <div className="flex items-center gap-1">
+            {digits.map((digit, index) => (
+              digit !== null ? (
+                <motion.span
+                  key={index}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setCurrentDigitIndex(index);
+                  }}
+                  className={`text-6xl font-bold leading-none transition-all duration-200 cursor-pointer ${
+                    index === currentDigitIndex
+                      ? 'text-[#00FFA3] scale-110'
+                      : 'text-white/50 hover:text-white/70'
+                  }`}
+                  style={{
+                    textShadow: index === currentDigitIndex && isDragging 
+                      ? '0 0 30px rgba(0,255,163,0.5)' 
+                      : 'none'
+                  }}
+                >
+                  {digit}
+                </motion.span>
+              ) : null
+            ))}
           </div>
-          <span className="text-sm text-[#00FFA3]/70 uppercase tracking-widest">
-            {unit}
-          </span>
-        </motion.div>
+          <div className="flex gap-1 mt-1">
+            {digits.map((_, index) => (
+              <div
+                key={index}
+                className={`w-2 h-2 rounded-full transition-all ${
+                  index === currentDigitIndex
+                    ? 'bg-[#00FFA3] w-6'
+                    : 'bg-white/20'
+                }`}
+              />
+            ))}
+          </div>
+        </div>
+        )}
 
-        {/* Horizontal Cursor Line */}
-        <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-[2px] bg-[#00FFA3] shadow-[0_0_10px_rgba(0,255,163,0.8)]" />
-
-        {/* Adjacent Numbers Strip */}
-        <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex items-center gap-4">
-          {adjacentNumbers.map((num, idx) => (
-            <motion.span
-              key={num}
-              className={`text-xl transition-all duration-200 ${
-                num === value
-                  ? 'text-[#00FFA3] text-3xl font-bold scale-110'
-                  : 'text-white/30'
-              }`}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.02 }}
+        {/* Number Slider (0-9 for current digit) */}
+        {isDragging && (
+          <motion.div
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 overflow-hidden"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            transition={{ duration: 0.2 }}
+            style={{ height: '500px', width: '200px' }}
+          >
+            {/* Container for all numbers 0-9 with vertical scroll effect */}
+            <motion.div
+              className="relative flex flex-col items-center"
+              animate={{
+                y: `calc(50% - ${currentDigit * 100}px)`,
+              }}
+              transition={{
+                type: 'spring',
+                stiffness: 300,
+                damping: 30,
+              }}
+              style={{
+                gap: '32px',
+              }}
             >
-              {num}
-            </motion.span>
-          ))}
-        </div>
-
-        {/* Instruction Text */}
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-xs text-white/40 uppercase tracking-wider">
-          {isDragging ? 'Release to confirm' : 'Drag to select · Swipe left to delete'}
-        </div>
+              {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => {
+                const distance = Math.abs(num - currentDigit);
+                const isSelected = num === currentDigit;
+                
+                return (
+                  <motion.span
+                    key={num}
+                    className="font-bold"
+                    animate={{
+                      fontSize: isSelected ? '80px' : distance === 1 ? '56px' : distance === 2 ? '40px' : '32px',
+                      opacity: distance === 0 ? 1 : distance === 1 ? 0.6 : distance === 2 ? 0.3 : 0.15,
+                      scale: isSelected ? 1.15 : 1,
+                    }}
+                    transition={{
+                      duration: 0.15,
+                      ease: 'easeOut',
+                    }}
+                    style={{
+                      color: isSelected ? '#00FFA3' : distance <= 2 ? '#ffffff' : '#ffffff50',
+                      textShadow: isSelected 
+                        ? '0 0 40px rgba(0,255,163,0.9), 0 0 80px rgba(0,255,163,0.5), 0 4px 20px rgba(0,0,0,0.5)' 
+                        : distance === 1 
+                          ? '0 2px 10px rgba(0,0,0,0.3)' 
+                          : 'none',
+                      lineHeight: 1,
+                      fontWeight: isSelected ? 900 : 700,
+                    }}
+                  >
+                    {num}
+                  </motion.span>
+                );
+              })}
+            </motion.div>
+          </motion.div>
+        )}
       </div>
     </div>
   );

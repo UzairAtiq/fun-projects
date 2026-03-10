@@ -10,8 +10,8 @@ type InputMode = 'weight' | 'reps' | 'confirm';
 
 export default function App() {
   const [mode, setMode] = useState<InputMode>('weight');
-  const [weight, setWeight] = useState(20);
-  const [reps, setReps] = useState(8);
+  const [weight, setWeight] = useState(0);
+  const [reps, setReps] = useState(0);
 
   const handleWeightComplete = () => {
     // Simulate a satisfying click sound with vibration
@@ -49,8 +49,8 @@ export default function App() {
     // Reset for next set
     setTimeout(() => {
       setMode('weight');
-      setWeight(20);
-      setReps(8);
+      setWeight(0);
+      setReps(0);
     }, 1500);
   };
 
@@ -98,8 +98,12 @@ export default function App() {
                 onChange={setWeight}
                 label="weight"
                 unit="kg"
-                max={300}
+                max={999}
                 onSwipeLeft={handleSwipeLeft}
+                onComplete={handleWeightComplete}
+                onBack={undefined}
+                canGoBack={false}
+                canGoForward={true}
               />
               
               {/* Continue Button */}
@@ -133,8 +137,12 @@ export default function App() {
                 onChange={setReps}
                 label="reps"
                 unit="reps"
-                max={50}
+                max={99}
                 onSwipeLeft={handleSwipeLeft}
+                onComplete={handleRepsComplete}
+                onBack={() => setMode('weight')}
+                canGoBack={true}
+                canGoForward={true}
               />
               
               {/* Continue Button */}
@@ -161,6 +169,7 @@ export default function App() {
               reps={reps}
               onConfirm={handleConfirm}
               onRedo={handleRedo}
+              onBack={() => setMode('reps')}
             />
           )}
         </AnimatePresence>

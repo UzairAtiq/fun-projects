@@ -6,9 +6,10 @@ interface ConfirmScreenProps {
   reps: number;
   onConfirm: () => void;
   onRedo: () => void;
+  onBack?: () => void;
 }
 
-export function ConfirmScreen({ weight, reps, onConfirm, onRedo }: ConfirmScreenProps) {
+export function ConfirmScreen({ weight, reps, onConfirm, onRedo, onBack }: ConfirmScreenProps) {
   const totalVolume = weight * reps;
 
   return (
@@ -19,6 +20,38 @@ export function ConfirmScreen({ weight, reps, onConfirm, onRedo }: ConfirmScreen
       transition={{ duration: 0.3, ease: 'easeOut' }}
       className="flex flex-col items-center justify-center h-full px-8"
     >
+      {/* Navigation Header */}
+      <div className="absolute top-8 left-1/2 -translate-x-1/2 flex items-center gap-4">
+        {/* Back Button */}
+        <button
+          onClick={onBack}
+          className="p-2 text-[#00FFA3] hover:text-[#00FFA3]/80 cursor-pointer transition-all"
+        >
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </button>
+
+        {/* Progress Indicator */}
+        <div className="flex items-center gap-2 text-xs tracking-widest text-teal-400/60 uppercase">
+          <span>Weight</span>
+          <span>·</span>
+          <span>Reps</span>
+          <span>·</span>
+          <span className="text-[#00FFA3]">Done</span>
+        </div>
+
+        {/* Forward Button (disabled) */}
+        <button
+          disabled
+          className="p-2 text-white/20 cursor-not-allowed"
+        >
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M7.5 15L12.5 10L7.5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </button>
+      </div>
+      
       {/* Animated Background Particles */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {[...Array(20)].map((_, i) => (
