@@ -1,6 +1,70 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, useMotionValue, useTransform } from 'motion/react';
 
+// Global audio context for haptic feedback (reuse for better performance)
+let audioContext: AudioContext | null = null;
+
+// Initialize audio context on first user interaction (required for iOS)
+const initAudioContext = () => {
+  if (!audioContext) {
+    try {
+      audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    } catch (e) {
+      console.warn('AudioContext not supported');
+    }
+  }
+  return audioContext;
+};
+
+// Haptic feedback helper that works on iOS
+const triggerHaptic = (type: 'light' | 'medium' | 'heavy' = 'light') => {
+  // Try vibration API first (Android)
+  if (navigator.vibrate) {
+    const patterns = {
+      light: 5,
+      medium: [5, 30, 5],
+      heavy: [10, 50, 10]
+    };
+    navigator.vibrate(patterns[type]);
+    return;
+  }
+  
+  // Fallback to audio feedback for iOS
+  try {
+    const ctx = initAudioContext();
+    if (!ctx) return;
+    
+    const oscillator = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(ctx.destination);
+    
+    // Very short, quiet click sound with different frequencies for different types
+    const frequencies = {
+      light: 800,
+      medium: 400,
+      heavy: 200
+    };
+    
+    oscillator.frequency.value = frequencies[type];
+    oscillator.type = 'sine';
+    
+    const now = ctx.currentTime;
+    const duration = type === 'heavy' ? 0.03 : type === 'medium' ? 0.02 : 0.01;
+    const volume = type === 'heavy' ? 0.15 : type === 'medium' ? 0.12 : 0.08;
+    
+    gainNode.gain.setValueAtTime(volume, now);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, now + duration);
+    
+    oscillator.start(now);
+    oscillator.stop(now + duration);
+  } catch (e) {
+    // Silent fail if audio context not available
+    console.warn('Haptic feedback failed:', e);
+  }
+};
+
 interface InputCanvasProps {
   value: number;
   onChange: (value: number) => void;
@@ -58,6 +122,9 @@ export function InputCanvas({ value, onChange, label, unit, max, onSwipeLeft, on
   }, [label, value, maxDigits]);
 
   const handleStart = (clientY: number, clientX: number, touchId?: number) => {
+    // Initialize audio context on first touch (required for iOS)
+    initAudioContext();
+    
     setIsDragging(true);
     startYRef.current = clientY;
     startXRef.current = clientX;
@@ -110,9 +177,7 @@ export function InputCanvas({ value, onChange, label, unit, max, onSwipeLeft, on
         onChange(newValue);
         
         // Haptic feedback when slider appears
-        if (navigator.vibrate) {
-          navigator.vibrate(5);
-        }
+        triggerHaptic('light');
       }
     }
 
@@ -153,9 +218,7 @@ export function InputCanvas({ value, onChange, label, unit, max, onSwipeLeft, on
           }
           
           // Vibration feedback
-          if (navigator.vibrate) {
-            navigator.vibrate([5, 30, 5]);
-          }
+          triggerHaptic('medium');
         }
         
         return;
@@ -173,9 +236,7 @@ export function InputCanvas({ value, onChange, label, unit, max, onSwipeLeft, on
           touchIdRef.current = null;
           
           // Trigger completion
-          if (navigator.vibrate) {
-            navigator.vibrate([10, 50, 10]);
-          }
+          triggerHaptic('heavy');
           
           setTimeout(() => {
             onComplete();
@@ -206,9 +267,7 @@ export function InputCanvas({ value, onChange, label, unit, max, onSwipeLeft, on
       onChange(newValue);
       
       // Play tick sound effect (simulated with vibration on mobile)
-      if (navigator.vibrate) {
-        navigator.vibrate(5);
-      }
+      triggerHaptic('light');
     }
 
     y.set(deltaY);
