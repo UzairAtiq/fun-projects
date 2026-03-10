@@ -1,6 +1,7 @@
 {
-  "buildCommand": "cd Cinematicworkoutlogger && npm install && npm run build",
+  "buildCommand": "npm --prefix Cinematicworkoutlogger install && npm --prefix Cinematicworkoutlogger run build",
   "outputDirectory": "Cinematicworkoutlogger/dist",
-  "installCommand": "cd Cinematicworkoutlogger && npm install",
+  "installCommand": "npm --prefix Cinematicworkoutlogger install",
+  "devCommand": "npm --prefix Cinematicworkoutlogger run dev",
   "framework": null
 }
