@@ -27,6 +27,7 @@ export function InputCanvas({ value, onChange, label, unit, max, onSwipeLeft, on
   const startXRef = useRef(0);
   const touchIdRef = useRef<number | null>(null);
   const digitWasModifiedRef = useRef(false);
+  const isHorizontalSwipeRef = useRef(false);
 
   const y = useMotionValue(0);
   const opacity = useTransform(y, [-100, 0, 100], [0.5, 1, 0.5]);
@@ -45,6 +46,7 @@ export function InputCanvas({ value, onChange, label, unit, max, onSwipeLeft, on
     startXRef.current = clientX;
     startDigitRef.current = digits[currentDigitIndex] ?? 0;
     digitWasModifiedRef.current = false;
+    isHorizontalSwipeRef.current = false;
     if (touchId !== undefined) {
       touchIdRef.current = touchId;
     }
@@ -57,73 +59,84 @@ export function InputCanvas({ value, onChange, label, unit, max, onSwipeLeft, on
     const deltaY = startYRef.current - clientY;
     const deltaX = clientX - startXRef.current;
 
-    // Check for swipe left gesture (remove last digit)
-    if (Math.abs(deltaX) > 100 && Math.abs(deltaX) > Math.abs(deltaY) && deltaX < 0) {
-      setIsDragging(false);
-      touchIdRef.current = null;
-      
-      // Find the last non-null digit index
-      let lastDigitIndex = -1;
-      for (let i = digits.length - 1; i >= 0; i--) {
-        if (digits[i] !== null) {
-          lastDigitIndex = i;
-          break;
-        }
-      }
-      
-      // If there's a digit to remove
-      if (lastDigitIndex >= 0) {
-        const newDigits = [...digits];
-        newDigits[lastDigitIndex] = null;
-        setDigits(newDigits);
-        
-        // Move to the previous digit position
-        setCurrentDigitIndex(lastDigitIndex);
-        
-        // Update value with remaining digits
-        const enteredDigits = newDigits.filter(d => d !== null);
-        const newValue = enteredDigits.length > 0 ? parseInt(enteredDigits.join('')) : 0;
-        onChange(newValue);
-        
-        // Check if all digits are cleared
-        if (enteredDigits.length === 0) {
-          setHasInputStarted(false);
-          setCurrentDigitIndex(0);
-        }
-        
-        // Vibration feedback
-        if (navigator.vibrate) {
-          navigator.vibrate([5, 30, 5]);
-        }
-      }
-      
-      return;
+    // Detect if this is a horizontal swipe early on
+    if (!isHorizontalSwipeRef.current && (Math.abs(deltaX) > 30 || Math.abs(deltaY) > 30)) {
+      isHorizontalSwipeRef.current = Math.abs(deltaX) > Math.abs(deltaY);
     }
 
-    // Check for swipe right gesture (advance to next screen if at least 1 digit)
-    if (Math.abs(deltaX) > 100 && Math.abs(deltaX) > Math.abs(deltaY) && deltaX > 0) {
-      const hasAtLeastOneDigit = digits.some(d => d !== null);
-      if (hasAtLeastOneDigit && onComplete) {
-        // Calculate final value from entered digits only
-        const enteredDigits = digits.filter(d => d !== null);
-        const finalValue = enteredDigits.length > 0 ? parseInt(enteredDigits.join('')) : 0;
-        onChange(finalValue);
+    // If horizontal swipe detected, ignore vertical movement
+    if (isHorizontalSwipeRef.current) {
+      // Check for swipe left gesture (remove last digit)
+      if (deltaX < -100) {
         setIsDragging(false);
         touchIdRef.current = null;
         
-        // Trigger completion
-        if (navigator.vibrate) {
-          navigator.vibrate([10, 50, 10]);
+        // Find the last non-null digit index
+        let lastDigitIndex = -1;
+        for (let i = digits.length - 1; i >= 0; i--) {
+          if (digits[i] !== null) {
+            lastDigitIndex = i;
+            break;
+          }
         }
         
-        setTimeout(() => {
-          onComplete();
-        }, 100);
+        // If there's a digit to remove
+        if (lastDigitIndex >= 0) {
+          const newDigits = [...digits];
+          newDigits[lastDigitIndex] = null;
+          setDigits(newDigits);
+          
+          // Move to the previous digit position
+          setCurrentDigitIndex(lastDigitIndex);
+          
+          // Update value with remaining digits
+          const enteredDigits = newDigits.filter(d => d !== null);
+          const newValue = enteredDigits.length > 0 ? parseInt(enteredDigits.join('')) : 0;
+          onChange(newValue);
+          
+          // Check if all digits are cleared
+          if (enteredDigits.length === 0) {
+            setHasInputStarted(false);
+            setCurrentDigitIndex(0);
+          }
+          
+          // Vibration feedback
+          if (navigator.vibrate) {
+            navigator.vibrate([5, 30, 5]);
+          }
+        }
+        
+        return;
       }
-      return;
+      
+      // Check for swipe right gesture (advance to next screen if at least 1 digit)
+      if (deltaX > 100) {
+        const hasAtLeastOneDigit = digits.some(d => d !== null);
+        if (hasAtLeastOneDigit && onComplete) {
+          // Calculate final value from entered digits only
+          const enteredDigits = digits.filter(d => d !== null);
+          const finalValue = enteredDigits.length > 0 ? parseInt(enteredDigits.join('')) : 0;
+          onChange(finalValue);
+          setIsDragging(false);
+          touchIdRef.current = null;
+          
+          // Trigger completion
+          if (navigator.vibrate) {
+            navigator.vibrate([10, 50, 10]);
+          }
+          
+          setTimeout(() => {
+            onComplete();
+          }, 100);
+        }
+        return;
+      }
     }
 
-    const sensitivity = 0.05;
+    // Only process vertical movement if not in horizontal swipe mode
+    if (isHorizontalSwipeRef.current) return;
+
+    const sensitivity = 0.03; // Reduced by 40% from 0.05
     const newDigit = Math.round(startDigitRef.current + deltaY * sensitivity);
     const clampedDigit = Math.max(0, Math.min(9, newDigit));
     
@@ -347,13 +360,13 @@ export function InputCanvas({ value, onChange, label, unit, max, onSwipeLeft, on
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
             transition={{ duration: 0.2 }}
-            style={{ height: '500px', width: '200px' }}
+            style={{ height: '250px', width: '100px' }}
           >
             {/* Container for all numbers 0-9 with vertical scroll effect */}
             <motion.div
               className="relative flex flex-col items-center"
               animate={{
-                y: `calc(50% - ${currentDigit * 100}px)`,
+                y: `calc(50% - ${currentDigit * 50}px)`,
               }}
               transition={{
                 type: 'spring',
@@ -361,7 +374,7 @@ export function InputCanvas({ value, onChange, label, unit, max, onSwipeLeft, on
                 damping: 30,
               }}
               style={{
-                gap: '32px',
+                gap: '16px',
               }}
             >
               {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => {
@@ -373,7 +386,7 @@ export function InputCanvas({ value, onChange, label, unit, max, onSwipeLeft, on
                     key={num}
                     className="font-bold"
                     animate={{
-                      fontSize: isSelected ? '80px' : distance === 1 ? '56px' : distance === 2 ? '40px' : '32px',
+                      fontSize: isSelected ? '40px' : distance === 1 ? '28px' : distance === 2 ? '20px' : '16px',
                       opacity: distance === 0 ? 1 : distance === 1 ? 0.6 : distance === 2 ? 0.3 : 0.15,
                       scale: isSelected ? 1.15 : 1,
                     }}
