@@ -1,15 +1,16 @@
 import { motion } from 'motion/react';
-import { Check, RotateCcw } from 'lucide-react';
+import { Check, RotateCcw, ArrowRight } from 'lucide-react';
 
 interface ConfirmScreenProps {
   weight: number;
   reps: number;
   onConfirm: () => void;
+  onConcludeExercise: () => void;
   onRedo: () => void;
   onBack?: () => void;
 }
 
-export function ConfirmScreen({ weight, reps, onConfirm, onRedo, onBack }: ConfirmScreenProps) {
+export function ConfirmScreen({ weight, reps, onConfirm, onConcludeExercise, onRedo, onBack }: ConfirmScreenProps) {
   const totalVolume = weight * reps;
 
   return (
@@ -134,11 +135,11 @@ export function ConfirmScreen({ weight, reps, onConfirm, onRedo, onBack }: Confi
       </motion.div>
 
       {/* Action Buttons */}
-      <div className="w-full max-w-md space-y-4 relative z-10">
-        {/* Log Set Button */}
+      <div className="w-full max-w-md space-y-3 relative z-10">
+        {/* Log Set — next set of same exercise */}
         <motion.button
           onClick={onConfirm}
-          className="w-full bg-[#00FFA3] text-[#050A14] font-bold text-lg py-6 rounded-lg uppercase tracking-widest relative overflow-hidden group"
+          className="w-full bg-[#00FFA3] text-[#050A14] font-bold text-lg py-5 rounded-xl uppercase tracking-widest relative overflow-hidden"
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           initial={{ y: 20, opacity: 0 }}
@@ -152,23 +153,39 @@ export function ConfirmScreen({ weight, reps, onConfirm, onRedo, onBack }: Confi
             transition={{ duration: 0.5 }}
           />
           <span className="relative z-10 flex items-center justify-center gap-3">
-            <Check className="w-6 h-6" />
+            <Check className="w-5 h-5" />
             Log Set
           </span>
         </motion.button>
 
-        {/* Redo Button */}
+        {/* Conclude Exercise — save set + move to next exercise */}
         <motion.button
-          onClick={onRedo}
-          className="w-full border-2 border-[#00FFA3]/30 text-[#00FFA3] font-semibold text-sm py-4 rounded-lg uppercase tracking-widest hover:bg-[#00FFA3]/10 transition-colors"
-          whileHover={{ scale: 1.02, borderColor: 'rgba(0,255,163,0.6)' }}
+          onClick={onConcludeExercise}
+          className="w-full border-2 border-[#00FFA3]/50 text-[#00FFA3] font-semibold text-base py-4 rounded-xl uppercase tracking-widest hover:bg-[#00FFA3]/10 transition-colors"
+          whileHover={{ scale: 1.02, borderColor: 'rgba(0,255,163,0.8)' }}
           whileTap={{ scale: 0.98 }}
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.6 }}
+          transition={{ delay: 0.58 }}
         >
           <span className="flex items-center justify-center gap-2">
-            <RotateCcw className="w-4 h-4" />
+            <Check className="w-4 h-4" />
+            Conclude Exercise
+            <ArrowRight className="w-4 h-4" />
+          </span>
+        </motion.button>
+
+        {/* Redo */}
+        <motion.button
+          onClick={onRedo}
+          className="w-full text-white/30 font-medium text-sm py-3 rounded-xl uppercase tracking-widest hover:text-white/60 transition-colors"
+          whileTap={{ scale: 0.98 }}
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.66 }}
+        >
+          <span className="flex items-center justify-center gap-2">
+            <RotateCcw className="w-3.5 h-3.5" />
             Redo
           </span>
         </motion.button>
