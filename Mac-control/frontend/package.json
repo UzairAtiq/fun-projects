@@ -1,0 +1,17 @@
+{
+  "name": "mac-control-frontend",
+  "version": "2.0.0",
+  "description": "Modern web interface for Mac Control",
+  "main": "public/index.html",
+  "scripts": {
+    "dev": "python -m http.server 3000 --directory frontend",
+    "deploy": "vercel --prod"
+  },
+  "keywords": [
+    "mac",
+    "remote-control",
+    "system-monitor"
+  ],
+  "author": "Mac Control Team",
+  "license": "MIT"
+}

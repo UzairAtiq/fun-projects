@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mac Control Panel</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <span class="logo-icon">🖥️</span>
+                <span class="logo-text">Mac Control</span>
+            </div>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link active">
+                    <span class="nav-icon">🏠</span>
+                    <span>Home</span>
+                </a>
+                <a href="status.html" class="nav-link">
+                    <span class="nav-icon">📊</span>
+                    <span>Status</span>
+                </a>
+                <a href="settings.html" class="nav-link">
+                    <span class="nav-icon">⚙️</span>
+                    <span>Settings</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="page-header">
+                <h1 class="page-title">🖥️ Mac Control Panel</h1>
+                <p class="page-subtitle">Control your Mac remotely from any device</p>
+                <div id="connection-status" class="connection-status">
+                    <span class="status-dot"></span>
+                    <span class="status-text">Checking connection...</span>
+                </div>
+            </div>
+
+            <div class="grid">
+                <!-- Status Card -->
+                <a href="status.html" class="action-card card-status">
+                    <div class="card-icon">📊</div>
+                    <div class="card-content">
+                        <h3 class="card-title">System Status</h3>
+                        <p class="card-description">View memory, storage, battery, and running apps</p>
+                    </div>
+                    <div class="card-arrow">→</div>
+                </a>
+
+                <!-- Camera Default Card -->
+                <button onclick="capturePhoto(0)" class="action-card card-camera">
+                    <div class="card-icon">📸</div>
+                    <div class="card-content">
+                        <h3 class="card-title">Take Photo</h3>
+                        <p class="card-description">Capture from default camera</p>
+                    </div>
+                    <div class="card-arrow">→</div>
+                </button>
+
+                <!-- Camera Mac Card -->
+                <button onclick="capturePhoto(1)" class="action-card card-camera">
+                    <div class="card-icon">💻</div>
+                    <div class="card-content">
+                        <h3 class="card-title">Mac Camera</h3>
+                        <p class="card-description">Capture from built-in camera</p>
+                    </div>
+                    <div class="card-arrow">→</div>
+                </button>
+
+                <!-- List Cameras Card -->
+                <button onclick="listCameras()" class="action-card card-info">
+                    <div class="card-icon">📷</div>
+                    <div class="card-content">
+                        <h3 class="card-title">List Cameras</h3>
+                        <p class="card-description">See all available cameras</p>
+                    </div>
+                    <div class="card-arrow">→</div>
+                </button>
+
+                <!-- Lock Screen Card -->
+                <button onclick="lockScreen()" class="action-card card-warning">
+                    <div class="card-icon">🔒</div>
+                    <div class="card-content">
+                        <h3 class="card-title">Lock Screen</h3>
+                        <p class="card-description">Lock your Mac immediately</p>
+                    </div>
+                    <div class="card-arrow">→</div>
+                </button>
+
+                <!-- Restart Card -->
+                <button onclick="restartMac()" class="action-card card-danger">
+                    <div class="card-icon">🔄</div>
+                    <div class="card-content">
+                        <h3 class="card-title">Restart Mac</h3>
+                        <p class="card-description">Restart your system</p>
+                    </div>
+                    <div class="card-arrow">→</div>
+                </button>
+            </div>
+
+            <!-- Result Display -->
+            <div id="result" class="result-box" style="display:none;">
+                <div class="result-content"></div>
+            </div>
+
+            <!-- Image Preview Modal -->
+            <div id="imageModal" class="modal" style="display:none;">
+                <div class="modal-content">
+                    <span class="close" onclick="closeModal()">&times;</span>
+                    <h3>Camera Snapshot</h3>
+                    <img id="capturedImage" src="" alt="Captured photo">
+                    <button onclick="downloadImage()" class="download-btn">⬇️ Download</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>Mac Control Panel • Secure Remote Access</p>
+    </footer>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/main.js"></script>
+</body>
+</html>

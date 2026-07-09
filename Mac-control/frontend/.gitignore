@@ -1,0 +1,22 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# Vercel
+.vercel
+
+# Local development
+node_modules/
+.DS_Store
+
+# Environment variables (don't commit sensitive data)
+.env.local
+.env
+
+# Editor directories
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+npm-debug.log*

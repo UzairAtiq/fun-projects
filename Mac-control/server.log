@@ -1,0 +1,35 @@
+Starting Flask server on http://0.0.0.0:8080
+Using token: replace-this-token
+Server will accept connections from:
+  - Local: http://127.0.0.1:8080
+  - Network: http://192.168.1.4:8080
+
+Test URLs:
+  Status: http://192.168.1.4:8080/status?token=replace-this-token
+  Lock: curl -X POST 'http://192.168.1.4:8080/lock?token=replace-this-token'
+
+ * Serving Flask app 'mac-control'
+ * Debug mode: off
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8080
+ * Running on http://192.168.1.4:8080
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug:192.168.1.8 - - [12/Oct/2025 13:36:19] "GET /status?token=replace-this-token HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.8 - - [12/Oct/2025 13:36:27] "GET /status?token=replace-this-token HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [12/Oct/2025 13:36:35] "GET /status?token=replace-this-token HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.8 - - [12/Oct/2025 13:36:37] "GET /status?token=replace-this-token HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.8 - - [12/Oct/2025 13:36:39] "GET /status?token=replace-this-token HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.8 - - [12/Oct/2025 13:36:40] "GET /status?token=replace-this-token HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.8 - - [12/Oct/2025 13:36:41] "GET /status?token=replace-this-token HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.8 - - [12/Oct/2025 13:36:42] "GET /status?token=replace-this-token HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.8 - - [12/Oct/2025 13:36:50] "GET /?token=replace-this-token HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.8 - - [12/Oct/2025 13:36:54] "GET /camera?token=replace-this-token&camera=1 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.8 - - [12/Oct/2025 13:37:07] "POST /lock?token=replace-this-token HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.8 - - [12/Oct/2025 13:37:29] "POST /lock?token=replace-this-token HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.8 - - [12/Oct/2025 13:37:52] "GET /camera?token=replace-this-token&camera=1 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.8 - - [12/Oct/2025 13:37:57] "POST /lock?token=replace-this-token HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.8 - - [12/Oct/2025 13:38:44] "POST /lock?token=replace-this-token HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.8 - - [12/Oct/2025 13:38:50] "POST /lock?token=replace-this-token HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.8 - - [12/Oct/2025 13:38:56] "GET /camera?token=replace-this-token&camera=1 HTTP/1.1" 200 -
+INFO:werkzeug:192.168.1.8 - - [12/Oct/2025 13:39:01] "GET /status?token=replace-this-token HTTP/1.1" 200 -
