@@ -1,0 +1,67 @@
+name: Bahria LMS Assignment Watcher
+
+on:
+  schedule:
+    # Every 6 hours (00:00, 06:00, 12:00, 18:00 UTC = 05:00, 11:00, 17:00, 23:00 PKT)
+    - cron: "0 */6 * * *"
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  check-assignments:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Restore the URL registry from the previous run so duplicates are skipped
+      - name: Restore state cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.bahria_downloaded.json
+          key: bahria-state-${{ github.run_id }}
+          restore-keys: bahria-state-
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Install Playwright browser
+        run: python -m playwright install --with-deps chromium
+
+      - name: Run watcher
+        env:
+          LMS_USERNAME: ${{ secrets.LMS_USERNAME }}
+          LMS_PASSWORD: ${{ secrets.LMS_PASSWORD }}
+          NTFY_TOPIC:   ${{ secrets.NTFY_TOPIC }}
+          CAMPUS_NAME:  ${{ secrets.CAMPUS_NAME }}
+        run: python bahria_watcher.py
+
+      # Upload any downloaded files as a 30-day artifact
+      - name: Upload assignments
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: assignments-${{ github.run_number }}
+          path: downloads/
+          if-no-files-found: ignore
+          retention-days: 30
+
+      - name: Upload log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: watcher-log-${{ github.run_number }}
+          path: ~/bahria_watcher.log
+          if-no-files-found: ignore
+          retention-days: 7

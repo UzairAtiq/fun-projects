@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+    "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  com.bahria.watcher.plist
+  ========================
+  launchd job that runs bahria_watcher.py every hour.
+
+  Installation:
+    1. Copy this file to ~/Library/LaunchAgents/
+    2. Run:  launchctl load -w ~/Library/LaunchAgents/com.bahria.watcher.plist
+-->
+<plist version="1.0">
+<dict>
+    <!-- Unique job identifier -->
+    <key>Label</key>
+    <string>com.bahria.watcher</string>
+
+    <!--
+      ProgramArguments:  [venv python3]  [script absolute path]
+    -->
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Users/uzair/check/.venv/bin/python3</string>
+        <string>/Users/uzair/check/bahria_watcher.py</string>
+    </array>
+
+    <!-- Run every 3600 seconds (1 hour) -->
+    <key>StartInterval</key>
+    <integer>3600</integer>
+
+    <!-- Also run once immediately when loaded -->
+    <key>RunAtLoad</key>
+    <true/>
+
+    <!-- Stdout and stderr both go to the log file -->
+    <key>StandardOutPath</key>
+    <string>/Users/uzair/bahria_watcher.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>/Users/uzair/bahria_watcher.log</string>
+
+    <!-- Environment needed so python3 can find installed packages -->
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/Users/uzair/check/.venv/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+        <key>HOME</key>
+        <string>/Users/uzair</string>
+    </dict>
+
+    <!-- Script's working directory -->
+    <key>WorkingDirectory</key>
+    <string>/Users/uzair/check</string>
+</dict>
+</plist>
