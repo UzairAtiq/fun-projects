@@ -23,7 +23,6 @@ A personal hobby project for viewing and interacting with 3D models in the brows
 Simply open `index.html` in a modern browser. No build process or dependencies required.
 
 ```bash
-open index.html
 ```
 
 ## Project Structure

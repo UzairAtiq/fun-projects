@@ -3,3 +3,4 @@ mediapipe==0.10.9
 numpy>=1.24.0
 customtkinter>=5.2.0
 Pillow>=10.0.0
+PySide6>=6.6.0

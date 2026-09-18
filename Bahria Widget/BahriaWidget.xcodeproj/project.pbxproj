@@ -1,0 +1,561 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		06C8650EBDCCFE87CBC6A958 /* AssignmentEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74FA40D3CEA3C86408E0F382 /* AssignmentEntry.swift */; };
+		0B8980CDF81F1BAA1A58799E /* Color+Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D3A61C89DAE13412CF0C15D /* Color+Theme.swift */; };
+		243A89F5E626CAA4E32EC219 /* BahriaWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 1D89942B4E74BBC69F77736B /* BahriaWidgetExtension.appex */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		2F1BA4D71368F2BD9BDEB2A6 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E5C508976BF1F7700FE9273 /* SettingsView.swift */; };
+		3B7AB1B0F4F787689A8DC9D2 /* BahriaWidgetApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0238A8425A57FDCD3352387 /* BahriaWidgetApp.swift */; };
+		40016FE45AA0205A6E0FC142 /* SharedData.swift in Sources */ = {isa = PBXBuildFile; fileRef = C24DD940D47C641DDF2C5678 /* SharedData.swift */; };
+		4DA38EFDEC204CF3E63F6D33 /* AssignmentListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 011BF08041E8A8DB61CB695F /* AssignmentListView.swift */; };
+		5B9B2E2EEC7487225F4DF3D3 /* MediumWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B24DD60404F7A071BA081AD /* MediumWidgetView.swift */; };
+		617EE25701F031ED6F4A443A /* Provider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CDF3D4CD8AC516FAB1B8553 /* Provider.swift */; };
+		65A149CACDD75D83D56A8565 /* LargeWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B843D68310725FB8EDAB9BC1 /* LargeWidgetView.swift */; };
+		7F7FE5829B73E5458FC3E829 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D6EFAED6E31AED2409D0AB0 /* Constants.swift */; };
+		8753FBF2C5790F03E88CAB29 /* Assignment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 332FC735FBD7904D1C238F92 /* Assignment.swift */; };
+		92DE61659CB4B34B5ADA290A /* SharedData.swift in Sources */ = {isa = PBXBuildFile; fileRef = C24DD940D47C641DDF2C5678 /* SharedData.swift */; };
+		95FB1E4746002741F5857E39 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03E3BFF3516BDE32F026B5EB /* AppState.swift */; };
+		AACD83CA2FC9E4223E832409 /* Color+Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D3A61C89DAE13412CF0C15D /* Color+Theme.swift */; };
+		C425AAD86BFB16D6518F7707 /* BahriaWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF91A6EDD4714655105B987E /* BahriaWidgetBundle.swift */; };
+		CC881D04281BE7C90E249087 /* SmallWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F5212E19280BB732E896B20 /* SmallWidgetView.swift */; };
+		E2DD70751008B82B62AB8C16 /* LMSService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51BC8343A52306695351EAD9 /* LMSService.swift */; };
+		E736C020B60BCF36ABED3238 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90B3FD91EDC9B3A7AE223BCB /* NotificationManager.swift */; };
+		E7A7C7795A1CD79B358C41EB /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D6EFAED6E31AED2409D0AB0 /* Constants.swift */; };
+		E949B516BF751FAF99B4C5EC /* Assignment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 332FC735FBD7904D1C238F92 /* Assignment.swift */; };
+		F468A1359B0B2BE2A6336FEA /* SessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FFCAEB570CF6B178BE70841 /* SessionManager.swift */; };
+		F704BAB62C96A393AA45A097 /* AssignmentCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFD0BC414A3D8151DA05298E /* AssignmentCardView.swift */; };
+		F7A1D01007115E23CFA8B570 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CE7F944FEFC2441ED284E88 /* LoginView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		A4FDBF895A9D66016CF39DDA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DEA8B5FF190F9403BE9D6DAB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9D33B484ECB5F8004F3BD7C7;
+			remoteInfo = BahriaWidgetExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		01CAC07EEEE210E4692CFA8A /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				243A89F5E626CAA4E32EC219 /* BahriaWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		011BF08041E8A8DB61CB695F /* AssignmentListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssignmentListView.swift; sourceTree = "<group>"; };
+		03E3BFF3516BDE32F026B5EB /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
+		1D89942B4E74BBC69F77736B /* BahriaWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = BahriaWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		1E5C508976BF1F7700FE9273 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		2CDF3D4CD8AC516FAB1B8553 /* Provider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Provider.swift; sourceTree = "<group>"; };
+		332FC735FBD7904D1C238F92 /* Assignment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Assignment.swift; sourceTree = "<group>"; };
+		3CE7F944FEFC2441ED284E88 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
+		4BD431DFB5233FAB2BB41326 /* BahriaWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BahriaWidgetExtension.entitlements; sourceTree = "<group>"; };
+		51BC8343A52306695351EAD9 /* LMSService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LMSService.swift; sourceTree = "<group>"; };
+		5D3A61C89DAE13412CF0C15D /* Color+Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Theme.swift"; sourceTree = "<group>"; };
+		6D6EFAED6E31AED2409D0AB0 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		74FA40D3CEA3C86408E0F382 /* AssignmentEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssignmentEntry.swift; sourceTree = "<group>"; };
+		7B24DD60404F7A071BA081AD /* MediumWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediumWidgetView.swift; sourceTree = "<group>"; };
+		7F5212E19280BB732E896B20 /* SmallWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmallWidgetView.swift; sourceTree = "<group>"; };
+		90B3FD91EDC9B3A7AE223BCB /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
+		9FFCAEB570CF6B178BE70841 /* SessionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionManager.swift; sourceTree = "<group>"; };
+		AE29F503F8777B6E4E84BEC8 /* BahriaWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BahriaWidget.entitlements; sourceTree = "<group>"; };
+		B843D68310725FB8EDAB9BC1 /* LargeWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LargeWidgetView.swift; sourceTree = "<group>"; };
+		C24DD940D47C641DDF2C5678 /* SharedData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedData.swift; sourceTree = "<group>"; };
+		CFD0BC414A3D8151DA05298E /* AssignmentCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssignmentCardView.swift; sourceTree = "<group>"; };
+		D0238A8425A57FDCD3352387 /* BahriaWidgetApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BahriaWidgetApp.swift; sourceTree = "<group>"; };
+		E4C859B5376C23CC41819044 /* BahriaWidget.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BahriaWidget.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		EF91A6EDD4714655105B987E /* BahriaWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BahriaWidgetBundle.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		209E06B37C7F38A5072B8782 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				E4C859B5376C23CC41819044 /* BahriaWidget.app */,
+				1D89942B4E74BBC69F77736B /* BahriaWidgetExtension.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		3842567B9BF7A65571F49377 /* BahriaWidget */ = {
+			isa = PBXGroup;
+			children = (
+				AE29F503F8777B6E4E84BEC8 /* BahriaWidget.entitlements */,
+				50886B2E9A667DAD50235F8C /* App */,
+				6AE3731B8300A50D3878C3F3 /* Models */,
+				412021C51032D9D41B08A822 /* Services */,
+				42663938F31312266B52C0BF /* Views */,
+			);
+			path = BahriaWidget;
+			sourceTree = "<group>";
+		};
+		412021C51032D9D41B08A822 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				51BC8343A52306695351EAD9 /* LMSService.swift */,
+				90B3FD91EDC9B3A7AE223BCB /* NotificationManager.swift */,
+				9FFCAEB570CF6B178BE70841 /* SessionManager.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		42663938F31312266B52C0BF /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				CFD0BC414A3D8151DA05298E /* AssignmentCardView.swift */,
+				011BF08041E8A8DB61CB695F /* AssignmentListView.swift */,
+				3CE7F944FEFC2441ED284E88 /* LoginView.swift */,
+				1E5C508976BF1F7700FE9273 /* SettingsView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		50886B2E9A667DAD50235F8C /* App */ = {
+			isa = PBXGroup;
+			children = (
+				D0238A8425A57FDCD3352387 /* BahriaWidgetApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		6AE3731B8300A50D3878C3F3 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				03E3BFF3516BDE32F026B5EB /* AppState.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		84CF60CA4523732B377A4500 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				332FC735FBD7904D1C238F92 /* Assignment.swift */,
+				5D3A61C89DAE13412CF0C15D /* Color+Theme.swift */,
+				6D6EFAED6E31AED2409D0AB0 /* Constants.swift */,
+				C24DD940D47C641DDF2C5678 /* SharedData.swift */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		B1E95D1E8544E5007E22B210 = {
+			isa = PBXGroup;
+			children = (
+				3842567B9BF7A65571F49377 /* BahriaWidget */,
+				D328DAA677EA3363CCB3BE5F /* BahriaWidgetExtension */,
+				84CF60CA4523732B377A4500 /* Shared */,
+				209E06B37C7F38A5072B8782 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		D328DAA677EA3363CCB3BE5F /* BahriaWidgetExtension */ = {
+			isa = PBXGroup;
+			children = (
+				74FA40D3CEA3C86408E0F382 /* AssignmentEntry.swift */,
+				EF91A6EDD4714655105B987E /* BahriaWidgetBundle.swift */,
+				4BD431DFB5233FAB2BB41326 /* BahriaWidgetExtension.entitlements */,
+				2CDF3D4CD8AC516FAB1B8553 /* Provider.swift */,
+				EA9CD41DF1EF6272334FFFE0 /* WidgetViews */,
+			);
+			path = BahriaWidgetExtension;
+			sourceTree = "<group>";
+		};
+		EA9CD41DF1EF6272334FFFE0 /* WidgetViews */ = {
+			isa = PBXGroup;
+			children = (
+				B843D68310725FB8EDAB9BC1 /* LargeWidgetView.swift */,
+				7B24DD60404F7A071BA081AD /* MediumWidgetView.swift */,
+				7F5212E19280BB732E896B20 /* SmallWidgetView.swift */,
+			);
+			path = WidgetViews;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		9D33B484ECB5F8004F3BD7C7 /* BahriaWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F6DE4ADE811CEF4A074C2869 /* Build configuration list for PBXNativeTarget "BahriaWidgetExtension" */;
+			buildPhases = (
+				A8C10EC84BDA713D678D1F67 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = BahriaWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = BahriaWidgetExtension;
+			productReference = 1D89942B4E74BBC69F77736B /* BahriaWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		C120BD611A540D4A75D71D53 /* BahriaWidget */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 73518021BE4F978FF7487D6E /* Build configuration list for PBXNativeTarget "BahriaWidget" */;
+			buildPhases = (
+				94AB99EC6885AB5C08CC2A67 /* Sources */,
+				01CAC07EEEE210E4692CFA8A /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				CA336AFD8703CE807098FE55 /* PBXTargetDependency */,
+			);
+			name = BahriaWidget;
+			packageProductDependencies = (
+			);
+			productName = BahriaWidget;
+			productReference = E4C859B5376C23CC41819044 /* BahriaWidget.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		DEA8B5FF190F9403BE9D6DAB /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+					9D33B484ECB5F8004F3BD7C7 = {
+						ProvisioningStyle = Automatic;
+					};
+					C120BD611A540D4A75D71D53 = {
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 6F3681F7ECA2670793353E66 /* Build configuration list for PBXProject "BahriaWidget" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = B1E95D1E8544E5007E22B210;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 209E06B37C7F38A5072B8782 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				C120BD611A540D4A75D71D53 /* BahriaWidget */,
+				9D33B484ECB5F8004F3BD7C7 /* BahriaWidgetExtension */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		94AB99EC6885AB5C08CC2A67 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				95FB1E4746002741F5857E39 /* AppState.swift in Sources */,
+				8753FBF2C5790F03E88CAB29 /* Assignment.swift in Sources */,
+				F704BAB62C96A393AA45A097 /* AssignmentCardView.swift in Sources */,
+				4DA38EFDEC204CF3E63F6D33 /* AssignmentListView.swift in Sources */,
+				3B7AB1B0F4F787689A8DC9D2 /* BahriaWidgetApp.swift in Sources */,
+				AACD83CA2FC9E4223E832409 /* Color+Theme.swift in Sources */,
+				E7A7C7795A1CD79B358C41EB /* Constants.swift in Sources */,
+				E2DD70751008B82B62AB8C16 /* LMSService.swift in Sources */,
+				F7A1D01007115E23CFA8B570 /* LoginView.swift in Sources */,
+				E736C020B60BCF36ABED3238 /* NotificationManager.swift in Sources */,
+				F468A1359B0B2BE2A6336FEA /* SessionManager.swift in Sources */,
+				2F1BA4D71368F2BD9BDEB2A6 /* SettingsView.swift in Sources */,
+				92DE61659CB4B34B5ADA290A /* SharedData.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A8C10EC84BDA713D678D1F67 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E949B516BF751FAF99B4C5EC /* Assignment.swift in Sources */,
+				06C8650EBDCCFE87CBC6A958 /* AssignmentEntry.swift in Sources */,
+				C425AAD86BFB16D6518F7707 /* BahriaWidgetBundle.swift in Sources */,
+				0B8980CDF81F1BAA1A58799E /* Color+Theme.swift in Sources */,
+				7F7FE5829B73E5458FC3E829 /* Constants.swift in Sources */,
+				65A149CACDD75D83D56A8565 /* LargeWidgetView.swift in Sources */,
+				5B9B2E2EEC7487225F4DF3D3 /* MediumWidgetView.swift in Sources */,
+				617EE25701F031ED6F4A443A /* Provider.swift in Sources */,
+				40016FE45AA0205A6E0FC142 /* SharedData.swift in Sources */,
+				CC881D04281BE7C90E249087 /* SmallWidgetView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		CA336AFD8703CE807098FE55 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9D33B484ECB5F8004F3BD7C7 /* BahriaWidgetExtension */;
+			targetProxy = A4FDBF895A9D66016CF39DDA /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		09B4A028AB08F427E534911F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = BahriaWidgetExtension/BahriaWidgetExtension.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8V2UC53LT2;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.uzair.BahriaWidget.WidgetExtension;
+				PRODUCT_NAME = BahriaWidgetExtension;
+				SDKROOT = macosx;
+				SWIFT_STRICT_CONCURRENCY = complete;
+			};
+			name = Debug;
+		};
+		10150FDB924320C21B8536ED /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		154FA0C4EFFC0367251BBCA1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = BahriaWidget/BahriaWidget.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8V2UC53LT2;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSUIElement = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				LSUIElement = YES;
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.uzair.BahriaWidget;
+				PRODUCT_NAME = BahriaWidget;
+				SDKROOT = macosx;
+				SWIFT_STRICT_CONCURRENCY = complete;
+			};
+			name = Debug;
+		};
+		539A5C7C1617638BCAFABCC7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		8DD046475C5CA47C18C912D2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = BahriaWidgetExtension/BahriaWidgetExtension.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8V2UC53LT2;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.uzair.BahriaWidget.WidgetExtension;
+				PRODUCT_NAME = BahriaWidgetExtension;
+				SDKROOT = macosx;
+				SWIFT_STRICT_CONCURRENCY = complete;
+			};
+			name = Release;
+		};
+		EAB32D693E02D839D1FB3E0C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = BahriaWidget/BahriaWidget.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8V2UC53LT2;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSUIElement = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				LSUIElement = YES;
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.uzair.BahriaWidget;
+				PRODUCT_NAME = BahriaWidget;
+				SDKROOT = macosx;
+				SWIFT_STRICT_CONCURRENCY = complete;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		6F3681F7ECA2670793353E66 /* Build configuration list for PBXProject "BahriaWidget" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				10150FDB924320C21B8536ED /* Debug */,
+				539A5C7C1617638BCAFABCC7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		73518021BE4F978FF7487D6E /* Build configuration list for PBXNativeTarget "BahriaWidget" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				154FA0C4EFFC0367251BBCA1 /* Debug */,
+				EAB32D693E02D839D1FB3E0C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		F6DE4ADE811CEF4A074C2869 /* Build configuration list for PBXNativeTarget "BahriaWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				09B4A028AB08F427E534911F /* Debug */,
+				8DD046475C5CA47C18C912D2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = DEA8B5FF190F9403BE9D6DAB /* Project object */;
+}

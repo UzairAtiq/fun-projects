@@ -1,0 +1,28 @@
+{
+  "name": "music-player-mood-generator",
+  "version": "1.0.0",
+  "description": "Production-ready Music Player with Mood-Based Playlist Generator",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:client\" \"npm run dev:server\"",
+    "dev:client": "cd client && npm run dev",
+    "dev:server": "cd server && npm run dev",
+    "client": "cd client && npm run dev",
+    "server": "cd server && npm run dev",
+    "build": "cd client && npm run build",
+    "install:all": "npm install && cd client && npm install && cd ../server && npm install",
+    "postinstall": "cd client && npm install && cd ../server && npm install"
+  },
+  "keywords": [
+    "music-player",
+    "spotify",
+    "mood-playlist",
+    "react",
+    "nodejs"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

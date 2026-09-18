@@ -1,0 +1,62 @@
+name: BahriaWidget
+options:
+  bundleIdPrefix: com.uzair
+  deploymentTarget:
+    macOS: "15.0"
+  xcodeVersion: "16.0"
+  createIntermediateGroups: true
+
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    MACOSX_DEPLOYMENT_TARGET: "15.0"
+    CODE_SIGN_STYLE: Automatic
+    CODE_SIGN_IDENTITY: "Apple Development"
+
+targets:
+  BahriaWidget:
+    type: application
+    platform: macOS
+    sources:
+      - path: BahriaWidget
+        excludes:
+          - "Resources/**"
+      - path: Shared
+    resources:
+      - path: BahriaWidget/Resources/scraper.py
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.uzair.BahriaWidget
+        GENERATE_INFOPLIST_FILE: true
+        CODE_SIGN_ENTITLEMENTS: BahriaWidget/BahriaWidget.entitlements
+        PRODUCT_NAME: "BahriaWidget"
+        MARKETING_VERSION: "1.0.0"
+        CURRENT_PROJECT_VERSION: 1
+        SWIFT_STRICT_CONCURRENCY: complete
+        LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/../Frameworks"
+        # Menu bar app — hide from Dock
+        LSUIElement: true
+        INFOPLIST_KEY_LSUIElement: YES
+    dependencies:
+      - target: BahriaWidgetExtension
+        embed: true
+        codeSign: true
+
+  BahriaWidgetExtension:
+    type: app-extension
+    platform: macOS
+    sources:
+      - path: BahriaWidgetExtension
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.uzair.BahriaWidget.WidgetExtension
+        GENERATE_INFOPLIST_FILE: true
+        CODE_SIGN_ENTITLEMENTS: BahriaWidgetExtension/BahriaWidgetExtension.entitlements
+        PRODUCT_NAME: BahriaWidgetExtension
+        MARKETING_VERSION: "1.0.0"
+        CURRENT_PROJECT_VERSION: 1
+        SWIFT_STRICT_CONCURRENCY: complete
+        LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/../Frameworks @executable_path/../../../../Frameworks"
+        CODE_SIGN_STYLE: Automatic
+        CODE_SIGN_IDENTITY: "Apple Development"
